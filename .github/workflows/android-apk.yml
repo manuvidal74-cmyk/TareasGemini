@@ -22,13 +22,21 @@ jobs:
           distribution: temurin
           java-version: "21"
 
-      - name: Configurar Android SDK y aceptar licencias
-        uses: android-actions/setup-android@v3
+      - name: Aceptar licencias del Android SDK
+        run: |
+          SDK_DIR="${ANDROID_HOME:-${ANDROID_SDK_ROOT:-/usr/local/lib/android/sdk}}"
+          echo "ANDROID_HOME=$SDK_DIR" >> "$GITHUB_ENV"
+          echo "ANDROID_SDK_ROOT=$SDK_DIR" >> "$GITHUB_ENV"
+          mkdir -p "$SDK_DIR/licenses"
+          SDKMANAGER=$(command -v sdkmanager || find "$SDK_DIR" -name sdkmanager -type f 2>/dev/null | head -n 1 || true)
+          if [ -n "$SDKMANAGER" ]; then
+            { yes || true; } | "$SDKMANAGER" --licenses >/dev/null || true
+          fi
 
-      - name: Configurar Gradle desde gradle-wrapper.properties
+      - name: Configurar Gradle 9.3.1
         uses: gradle/actions/setup-gradle@v4
         with:
-          gradle-version: wrapper
+          gradle-version: "9.3.1"
 
       - name: Preparar keystore de depuración para Google Sign-In
         run: |

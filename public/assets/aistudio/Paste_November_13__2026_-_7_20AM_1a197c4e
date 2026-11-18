@@ -1,0 +1,3176 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="color-scheme" content="light dark">
+  <title>Tareas y Avisos</title>
+  <style>
+    :root {
+      --header-bg: #0F2742;
+      --heading-color: #0F2742;
+      --bg-color: #EEF2F6;
+      --card-bg: #FFFFFF;
+      --card-subtle-bg: #F8FAFC;
+      --accent: #1F5FD6;
+      --green: #127A52;
+      --red: #C23B2E;
+      --amber: #B45309;
+      --amber-bg: #FEF3C7;
+      --red-bg: #FEE2E2;
+      --blue-bg: #DBEAFE;
+      --green-bg: #D1FAE5;
+      --purple: #6D28D9;
+      --purple-bg: #EDE9FE;
+      --purple-border: #DDD6FE;
+      --teal: #0F766E;
+      --teal-bg: #CCFBF1;
+      --teal-border: #99F6E4;
+      --text-main: #1E293B;
+      --text-muted: #64748B;
+      --border: #CBD5E1;
+      --border-light: #E2E8F0;
+      --banner-alert-bg: #FFF5F5;
+      --banner-alert-border: #FECACA;
+      --banner-ok-bg: #F0FDF4;
+      --switch-bg: #E2E8F0;
+      --modal-backdrop-bg: rgba(15, 39, 66, 0.6);
+      --toast-bg: #0F2742;
+      --toast-color: #FFFFFF;
+    }
+
+    @media (prefers-color-scheme: dark) {
+      :root:not([data-theme="claro"]) {
+        --header-bg: #0A131F;
+        --heading-color: #93C5FD;
+        --bg-color: #0B111E;
+        --card-bg: #152033;
+        --card-subtle-bg: #1B2942;
+        --accent: #3B82F6;
+        --green: #10B981;
+        --red: #EF4444;
+        --amber: #F59E0B;
+        --amber-bg: #451A03;
+        --red-bg: #450A0A;
+        --blue-bg: #172554;
+        --green-bg: #064E3B;
+        --purple: #C4B5FD;
+        --purple-bg: #2E1065;
+        --purple-border: #5B21B6;
+        --teal: #5EEAD4;
+        --teal-bg: #134E4A;
+        --teal-border: #115E59;
+        --text-main: #F1F5F9;
+        --text-muted: #94A3B8;
+        --border: #2D3E59;
+        --border-light: #1E2E48;
+        --banner-alert-bg: #2D1418;
+        --banner-alert-border: #5C1D24;
+        --banner-ok-bg: #0D281E;
+        --switch-bg: #1A263D;
+        --modal-backdrop-bg: rgba(0, 0, 0, 0.75);
+        --toast-bg: #1E2E48;
+        --toast-color: #F1F5F9;
+      }
+    }
+
+    :root[data-theme="oscuro"] {
+      --header-bg: #0A131F;
+      --heading-color: #93C5FD;
+      --bg-color: #0B111E;
+      --card-bg: #152033;
+      --card-subtle-bg: #1B2942;
+      --accent: #3B82F6;
+      --green: #10B981;
+      --red: #EF4444;
+      --amber: #F59E0B;
+      --amber-bg: #451A03;
+      --red-bg: #450A0A;
+      --blue-bg: #172554;
+      --green-bg: #064E3B;
+      --purple: #C4B5FD;
+      --purple-bg: #2E1065;
+      --purple-border: #5B21B6;
+      --teal: #5EEAD4;
+      --teal-bg: #134E4A;
+      --teal-border: #115E59;
+      --text-main: #F1F5F9;
+      --text-muted: #94A3B8;
+      --border: #2D3E59;
+      --border-light: #1E2E48;
+      --banner-alert-bg: #2D1418;
+      --banner-alert-border: #5C1D24;
+      --banner-ok-bg: #0D281E;
+      --switch-bg: #1A263D;
+      --modal-backdrop-bg: rgba(0, 0, 0, 0.75);
+      --toast-bg: #1E2E48;
+      --toast-color: #F1F5F9;
+    }
+
+    * {
+      box-sizing: border-box;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    body {
+      margin: 0;
+      padding: 0;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      background-color: var(--bg-color);
+      color: var(--text-main);
+      font-size: 14px;
+      line-height: 1.35;
+      padding-bottom: 72px;
+      overflow-x: hidden;
+      transition: background-color 0.2s ease, color 0.2s ease;
+    }
+
+    /* Cabecera compacta */
+    header {
+      background-color: var(--header-bg);
+      color: #FFFFFF;
+      padding-top: calc(env(safe-area-inset-top, 0px) + 8px);
+      padding-bottom: 8px;
+      padding-left: 10px;
+      padding-right: 10px;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 6px;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.25);
+    }
+
+    header h1 {
+      margin: 0;
+      font-size: 17px;
+      font-weight: 700;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      color: #FFFFFF;
+    }
+
+    .header-actions {
+      display: flex;
+      gap: 5px;
+      flex-shrink: 0;
+    }
+
+    .btn-header {
+      background-color: var(--accent);
+      color: #FFFFFF;
+      border: none;
+      border-radius: 6px;
+      padding: 0 10px;
+      min-height: 44px;
+      font-size: 12.5px;
+      font-weight: 600;
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      cursor: pointer;
+    }
+
+    .btn-header.excel {
+      background-color: var(--green);
+    }
+
+    main {
+      max-width: 720px;
+      margin: 0 auto;
+      padding: 8px 10px;
+    }
+
+    .screen {
+      display: none;
+    }
+
+    .screen.active {
+      display: block;
+    }
+
+    /* Tarjetas compactas */
+    .card {
+      background-color: var(--card-bg);
+      border-radius: 8px;
+      padding: 8px 10px;
+      margin-bottom: 7px;
+      box-shadow: 0 1px 2px rgba(0, 0, 0, 0.08);
+      border: 1px solid var(--border-light);
+    }
+
+    .card-title {
+      font-size: 14.5px;
+      font-weight: 700;
+      margin: 0 0 6px 0;
+      color: var(--heading-color);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 6px;
+      flex-wrap: wrap;
+    }
+
+    /* Banner alertas */
+    .alert-banner {
+      border-left: 4px solid var(--red);
+      background-color: var(--banner-alert-bg);
+      padding: 6px 10px;
+    }
+
+    .alert-banner.ok {
+      border-left-color: var(--green);
+      background-color: var(--banner-ok-bg);
+    }
+
+    .alert-banner.backup-warn {
+      border-left-color: var(--amber);
+      background-color: var(--amber-bg);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+    }
+
+    .alert-item {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 4px 0;
+      border-bottom: 1px dashed var(--banner-alert-border);
+      gap: 6px;
+    }
+
+    .alert-item:last-child {
+      border-bottom: none;
+      padding-bottom: 0;
+    }
+
+    /* Botones e inputs con altura táctil accesible */
+    button, select, input, textarea {
+      font-family: inherit;
+      font-size: 14px;
+    }
+
+    .btn {
+      min-height: 44px;
+      padding: 4px 10px;
+      border-radius: 6px;
+      border: 1px solid transparent;
+      font-weight: 600;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 4px;
+      text-decoration: none;
+      font-size: 13px;
+    }
+
+    .btn-primary { background-color: var(--accent); color: #FFFFFF; }
+    .btn-success { background-color: var(--green); color: #FFFFFF; }
+    .btn-danger { background-color: var(--red); color: #FFFFFF; }
+    .btn-outline {
+      background-color: var(--card-subtle-bg);
+      color: var(--text-main);
+      border-color: var(--border);
+    }
+
+    .btn-action {
+      min-height: 44px;
+      padding: 3px 8px;
+      font-size: 12px;
+      border-radius: 6px;
+    }
+
+    .btn-block {
+      width: 100%;
+    }
+
+    .filters-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 6px;
+      margin-bottom: 6px;
+    }
+
+    .search-bar-row {
+      display: flex;
+      gap: 6px;
+      align-items: center;
+    }
+
+    .search-bar-row .input-control {
+      flex: 1;
+      min-width: 0;
+    }
+
+    .btn-toggle-filters {
+      flex-shrink: 0;
+      white-space: nowrap;
+      position: relative;
+    }
+
+    .btn-toggle-filters.has-active-filters {
+      border-color: var(--accent);
+      background-color: var(--blue-bg);
+      color: var(--accent);
+    }
+
+    .panel-filtros-desplegable {
+      display: none;
+      margin-top: 8px;
+      padding-top: 8px;
+      border-top: 1px dashed var(--border);
+    }
+
+    .panel-filtros-desplegable.open {
+      display: block;
+    }
+
+    .results-counter {
+      font-size: 11.5px;
+      color: var(--text-muted);
+      font-weight: 600;
+      margin-top: 5px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .input-control {
+      width: 100%;
+      min-height: 44px;
+      padding: 6px 10px;
+      border-radius: 6px;
+      border: 1px solid var(--border);
+      background-color: var(--card-bg);
+      color: var(--text-main);
+      font-size: 13.5px;
+    }
+
+    .input-control:focus {
+      outline: none;
+      border-color: var(--accent);
+    }
+
+    textarea.input-control {
+      min-height: 68px;
+      resize: vertical;
+    }
+
+    /* Badges */
+    .badge {
+      display: inline-block;
+      padding: 2px 6px;
+      border-radius: 4px;
+      font-size: 10.5px;
+      font-weight: 700;
+      text-transform: uppercase;
+      line-height: 1.2;
+    }
+
+    .badge-alta { background-color: var(--red-bg); color: var(--red); }
+    .badge-media { background-color: var(--amber-bg); color: var(--amber); }
+    .badge-baja { background-color: var(--blue-bg); color: var(--accent); }
+    .badge-tipo { background-color: var(--card-subtle-bg); color: var(--text-muted); border: 1px solid var(--border); }
+    .badge-rep { background-color: var(--purple-bg); color: var(--purple); border: 1px solid var(--purple-border); }
+    .badge-traspasado { background-color: var(--teal-bg); color: var(--teal); border: 1px solid var(--teal-border); }
+    .badge-vencida { background-color: var(--red); color: #FFFFFF; }
+    .badge-hoy { background-color: var(--green); color: #FFFFFF; }
+
+    /* Tarjetas de tarea */
+    .task-card {
+      border-left: 4px solid var(--accent);
+      padding: 7px 9px;
+      margin-bottom: 6px;
+    }
+
+    .task-card.rel-alta { border-left-color: var(--red); }
+    .task-card.rel-media { border-left-color: var(--amber); }
+    .task-card.rel-baja { border-left-color: var(--accent); }
+    .task-card.done {
+      border-left-color: var(--green);
+      opacity: 0.95;
+    }
+
+    .task-card.projected {
+      border-style: dashed;
+      border-left-width: 4px;
+      border-left-style: solid;
+      background-color: var(--card-subtle-bg);
+    }
+
+    .task-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 6px;
+      margin-bottom: 3px;
+    }
+
+    .task-title {
+      font-size: 14.5px;
+      font-weight: 700;
+      margin: 0;
+      word-break: break-word;
+      line-height: 1.25;
+      flex: 1;
+      color: var(--text-main);
+    }
+
+    .task-meta {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 4px;
+      margin-bottom: 5px;
+      font-size: 12px;
+      color: var(--text-muted);
+      align-items: center;
+    }
+
+    .task-notes {
+      background-color: var(--card-subtle-bg);
+      border-radius: 6px;
+      padding: 5px 7px;
+      font-size: 12.5px;
+      color: var(--text-main);
+      white-space: pre-wrap;
+      word-break: break-word;
+      margin-bottom: 6px;
+      border: 1px solid var(--border-light);
+      line-height: 1.35;
+    }
+
+    .task-notes.task-notes-cierre {
+      background-color: var(--banner-ok-bg);
+      border-color: var(--green);
+      color: var(--green);
+    }
+
+    .checklist-row {
+      display: flex;
+      align-items: flex-start;
+      gap: 8px;
+      padding: 4px 2px;
+      cursor: pointer;
+      min-height: 32px;
+    }
+
+    .checklist-row input[type="checkbox"] {
+      width: 18px;
+      height: 18px;
+      margin-top: 1px;
+      accent-color: var(--green);
+      flex-shrink: 0;
+      cursor: pointer;
+    }
+
+    .checklist-row.checked span {
+      text-decoration: line-through;
+      color: var(--text-muted);
+    }
+
+    .task-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 4px;
+      border-top: 1px solid var(--border-light);
+      padding-top: 5px;
+    }
+
+    .task-actions .btn {
+      flex: 1 1 auto;
+    }
+
+    /* Tarjetas del Diario */
+    .diary-day-card {
+      background: var(--card-bg);
+      border-radius: 8px;
+      border: 1px solid var(--border);
+      margin-bottom: 8px;
+      overflow: hidden;
+    }
+
+    .diary-day-header-bar {
+      background: var(--card-subtle-bg);
+      padding: 6px 9px;
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--heading-color);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 1px solid var(--border-light);
+    }
+
+    .diary-obs-block {
+      padding: 7px 9px;
+      background: var(--card-bg);
+      border-bottom: 1px solid var(--border-light);
+    }
+
+    .diary-obs-content {
+      background: var(--card-subtle-bg);
+      border-radius: 6px;
+      padding: 5px 7px;
+      font-size: 12.5px;
+      color: var(--text-main);
+      white-space: pre-wrap;
+      word-break: break-word;
+      border: 1px solid var(--border-light);
+      margin-bottom: 5px;
+      line-height: 1.35;
+    }
+
+    .diary-cal-note-block {
+      padding: 6px 9px;
+      background: var(--blue-bg);
+      border-bottom: 1px solid var(--border-light);
+      font-size: 12px;
+      color: var(--text-main);
+    }
+
+    .diary-completed-title {
+      padding: 4px 9px;
+      font-size: 11px;
+      font-weight: 700;
+      color: var(--green);
+      background: var(--banner-ok-bg);
+    }
+
+    .diary-task-completed {
+      padding: 5px 9px;
+      background: var(--banner-ok-bg);
+      border-bottom: 1px dashed var(--border-light);
+      font-size: 12px;
+      color: var(--text-main);
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 6px;
+    }
+
+    .diary-task-completed:last-child {
+      border-bottom: none;
+    }
+
+    .diary-time-badge {
+      font-weight: 800;
+      color: var(--green);
+      background: var(--green-bg);
+      padding: 1px 5px;
+      border-radius: 4px;
+      font-size: 11px;
+      white-space: nowrap;
+    }
+
+    /* Calendario */
+    .cal-toolbar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 4px;
+      margin-bottom: 6px;
+    }
+
+    .cal-title {
+      font-size: 14.5px;
+      font-weight: 700;
+      text-align: center;
+      text-transform: capitalize;
+      flex: 1;
+      color: var(--heading-color);
+    }
+
+    .cal-view-switch {
+      display: flex;
+      gap: 3px;
+      background: var(--switch-bg);
+      padding: 3px;
+      border-radius: 8px;
+      margin-bottom: 8px;
+    }
+
+    .cal-view-switch button {
+      flex: 1;
+      min-height: 44px;
+      border: none;
+      background: transparent;
+      border-radius: 6px;
+      font-weight: 600;
+      color: var(--text-muted);
+      cursor: pointer;
+      font-size: 12px;
+    }
+
+    .cal-view-switch button.active {
+      background: var(--card-bg);
+      color: var(--heading-color);
+      box-shadow: 0 1px 3px rgba(0,0,0,0.15);
+    }
+
+    .cal-grid-header {
+      display: grid;
+      grid-template-columns: repeat(7, 1fr);
+      text-align: center;
+      font-weight: 700;
+      font-size: 11px;
+      color: var(--text-muted);
+      padding-bottom: 4px;
+    }
+
+    .cal-grid {
+      display: grid;
+      grid-template-columns: repeat(7, 1fr);
+      gap: 3px;
+    }
+
+    .cal-day {
+      min-height: 46px;
+      background: var(--card-subtle-bg);
+      border: 1px solid var(--border-light);
+      border-radius: 6px;
+      padding: 2px 1px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: space-between;
+      cursor: pointer;
+      position: relative;
+    }
+
+    .cal-day.other-month { opacity: 0.3; }
+    .cal-day.today { border: 2px solid var(--accent); background: var(--blue-bg); }
+    .cal-day.selected { background: var(--header-bg); color: #FFFFFF; border-color: var(--accent); }
+    .cal-day.selected .cal-day-num { color: #FFFFFF; }
+    .cal-day-num { font-size: 12px; font-weight: 700; color: var(--text-main); }
+
+    .cal-dots {
+      display: flex;
+      gap: 2px;
+      flex-wrap: wrap;
+      justify-content: center;
+      max-width: 100%;
+      padding: 0 1px;
+    }
+
+    .dot { width: 5px; height: 5px; border-radius: 50%; }
+    .dot-alta { background-color: var(--red); }
+    .dot-media { background-color: var(--amber); }
+    .dot-baja { background-color: var(--accent); }
+    .dot-done { background-color: var(--green); }
+    .dot-rep { background-color: var(--purple); }
+    .note-indicator { font-size: 9px; line-height: 1; }
+
+    /* Estadísticas */
+    .stats-row {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 6px;
+      margin-bottom: 8px;
+    }
+
+    .stat-box {
+      background: var(--card-bg);
+      border-radius: 8px;
+      padding: 6px 4px;
+      text-align: center;
+      border: 1px solid var(--border-light);
+    }
+
+    .stat-num { font-size: 17px; font-weight: 800; color: var(--heading-color); line-height: 1.1; }
+    .stat-label { font-size: 10.5px; color: var(--text-muted); font-weight: 600; }
+
+    /* Barra inferior */
+    nav.bottom-nav {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      background-color: var(--card-bg);
+      border-top: 1px solid var(--border);
+      display: flex;
+      justify-content: space-around;
+      padding-bottom: env(safe-area-inset-bottom, 0px);
+      z-index: 100;
+      box-shadow: 0 -1px 6px rgba(0,0,0,0.12);
+    }
+
+    .nav-item {
+      flex: 1;
+      min-height: 52px;
+      border: none;
+      background: none;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      color: var(--text-muted);
+      font-size: 10.5px;
+      font-weight: 600;
+      cursor: pointer;
+      padding: 2px 1px;
+    }
+
+    .nav-item.active { color: var(--accent); font-weight: 700; }
+    .nav-icon { font-size: 17px; margin-bottom: 1px; }
+
+    /* Modales */
+    .modal-backdrop {
+      position: fixed;
+      inset: 0;
+      background-color: var(--modal-backdrop-bg);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 10px;
+      z-index: 300;
+    }
+
+    .modal-backdrop.open { display: flex; }
+
+    .modal-content {
+      background-color: var(--card-bg);
+      color: var(--text-main);
+      border-radius: 10px;
+      width: 100%;
+      max-width: 480px;
+      max-height: 92vh;
+      overflow-y: auto;
+      padding: 14px;
+      box-shadow: 0 8px 24px rgba(0,0,0,0.35);
+      border: 1px solid var(--border);
+    }
+
+    .modal-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 8px;
+      border-bottom: 1px solid var(--border-light);
+      padding-bottom: 6px;
+    }
+
+    .modal-header h2 { margin: 0; font-size: 16px; color: var(--heading-color); }
+    .form-group { margin-bottom: 8px; }
+    .form-group label { display: block; font-weight: 600; font-size: 12.5px; margin-bottom: 3px; color: var(--text-main); }
+
+    .info-box {
+      background-color: var(--blue-bg);
+      border: 1px solid var(--accent);
+      border-radius: 8px;
+      padding: 8px 10px;
+      margin-bottom: 8px;
+      font-size: 12.5px;
+      color: var(--text-main);
+    }
+
+    .path-display {
+      background: var(--card-subtle-bg);
+      padding: 7px 10px;
+      border-radius: 6px;
+      border: 1px solid var(--border);
+      font-family: monospace;
+      font-size: 12.5px;
+      color: var(--text-main);
+      word-break: break-all;
+      margin-bottom: 6px;
+    }
+
+    .recurrence-box {
+      background-color: var(--purple-bg);
+      border: 1px solid var(--purple-border);
+      border-radius: 8px;
+      padding: 8px 10px;
+      margin-bottom: 8px;
+      font-size: 12.5px;
+      color: var(--text-main);
+    }
+
+    .checkbox-line {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      margin-top: 6px;
+      font-weight: 600;
+      cursor: pointer;
+    }
+
+    .checkbox-line input[type="checkbox"] {
+      width: 18px;
+      height: 18px;
+      accent-color: var(--purple);
+    }
+
+    .selector-panel {
+      display: none;
+      background: var(--card-subtle-bg);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      padding: 8px;
+      margin-bottom: 8px;
+    }
+
+    /* Toast */
+    #toast {
+      position: fixed;
+      bottom: 64px;
+      left: 50%;
+      transform: translateX(-50%);
+      background-color: var(--toast-bg);
+      color: var(--toast-color);
+      padding: 8px 14px;
+      border-radius: 8px;
+      font-size: 13px;
+      font-weight: 600;
+      box-shadow: 0 4px 14px rgba(0,0,0,0.3);
+      border: 1px solid var(--border);
+      z-index: 400;
+      display: none;
+      max-width: 90%;
+      text-align: center;
+    }
+
+    .empty-state {
+      text-align: center;
+      padding: 16px 8px;
+      color: var(--text-muted);
+      font-size: 13px;
+    }
+  </style>
+</head>
+<body>
+
+  <header>
+    <h1>📋 Tareas y Avisos</h1>
+    <div class="header-actions">
+      <button class="btn-header excel" id="btnExportarExcelCabecera" type="button" title="Exportar consolidado a Excel">
+        📊 Excel
+      </button>
+      <button class="btn-header" id="btnNuevaTareaCabecera" type="button">
+        ➕ Tarea
+      </button>
+    </div>
+  </header>
+
+  <main>
+    <!-- PANTALLA 1: PENDIENTES Y AVISOS -->
+    <section id="screen-pendientes" class="screen active">
+      <div id="panelAvisoBackup" class="card alert-banner backup-warn" style="display:none;"></div>
+      <div id="panelAvisosUrgentes" class="card alert-banner"></div>
+
+      <div class="card">
+        <div class="search-bar-row">
+          <input type="search" id="buscarPendientes" class="input-control" placeholder="🔍 Buscar en título o notas...">
+          <button type="button" id="btnToggleFiltrosPendientes" class="btn btn-outline btn-action btn-toggle-filters" aria-expanded="false" aria-controls="panelFiltrosPendientes">
+            🎛️ Ordenar ▾
+          </button>
+        </div>
+
+        <div id="panelFiltrosPendientes" class="panel-filtros-desplegable">
+          <div class="filters-grid">
+            <select id="filtroRelevancia" class="input-control" aria-label="Filtrar por relevancia">
+              <option value="todas">Relevancia: Todas</option>
+              <option value="alta">🔴 Relevancia Alta</option>
+              <option value="media">🟠 Relevancia Media</option>
+              <option value="baja">🔵 Relevancia Baja</option>
+            </select>
+            <select id="filtroTipo" class="input-control" aria-label="Filtrar por tipo">
+              <option value="todos">Tipo: Todos</option>
+              <option value="tarea">📌 Solo Tareas</option>
+              <option value="aviso">🔔 Solo Avisos</option>
+            </select>
+          </div>
+          <div class="filters-grid">
+            <select id="filtroRepeticion" class="input-control" aria-label="Filtrar por repetición">
+              <option value="todas">Frecuencia: Todas</option>
+              <option value="repetitivas">🔁 Solo repetitivas</option>
+              <option value="semanal">🔁 Cada semana</option>
+              <option value="mensual">🔁 Cada mes</option>
+              <option value="anual">🔁 Cada año</option>
+              <option value="ninguna">1️⃣ Una sola vez</option>
+            </select>
+            <select id="ordenPendientes" class="input-control" aria-label="Ordenar por">
+              <option value="fecha">Orden: Por fecha</option>
+              <option value="relevancia">Orden: Relevancia</option>
+            </select>
+          </div>
+          <button type="button" id="btnRestablecerFiltros" class="btn btn-outline btn-action btn-block">
+            ↺ Restablecer filtros y orden
+          </button>
+        </div>
+
+        <div class="results-counter">
+          <span id="contadorPendientes">Mostrando 0 pendientes</span>
+        </div>
+      </div>
+
+      <div id="listaPendientes"></div>
+    </section>
+
+    <!-- PANTALLA 2: CALENDARIO CONFIGURABLE -->
+    <section id="screen-calendario" class="screen">
+      <div class="card">
+        <div class="cal-view-switch">
+          <button type="button" id="btnVistaMes" class="active">Mes</button>
+          <button type="button" id="btnVistaSemana">Semana</button>
+          <button type="button" id="btnVistaAgenda">Agenda</button>
+        </div>
+
+        <div class="cal-toolbar">
+          <button type="button" class="btn btn-outline btn-action" id="btnCalPrev">◀</button>
+          <div class="cal-title" id="calTituloPeriodo"></div>
+          <button type="button" class="btn btn-outline btn-action" id="btnCalHoy">Hoy</button>
+          <button type="button" class="btn btn-outline btn-action" id="btnCalNext">▶</button>
+        </div>
+
+        <div id="contenedorRejillaCalendario"></div>
+      </div>
+
+      <!-- Detalle del día seleccionado -->
+      <div class="card" id="panelDiaSeleccionado">
+        <div class="card-title">
+          <span id="tituloDiaSeleccionado">Día seleccionado</span>
+          <div style="display:flex; gap:4px;">
+            <button type="button" class="btn btn-outline btn-action" id="btnAnadirObsEnDia">📖 +Obs</button>
+            <button type="button" class="btn btn-primary btn-action" id="btnAnadirEnDia">➕ Tarea</button>
+          </div>
+        </div>
+
+        <div class="form-group" style="margin-bottom:4px;">
+          <label for="notaRapidaDia">📝 Nota fija de este día (se guarda sola):</label>
+          <textarea id="notaRapidaDia" class="input-control" placeholder="Escribe aquí notas o apuntes del día..."></textarea>
+        </div>
+
+        <div id="listaTareasDia"></div>
+      </div>
+    </section>
+
+    <!-- PANTALLA 3: AGENDA DIARIO -->
+    <section id="screen-diario" class="screen">
+      <div class="card">
+        <div class="card-title">
+          <span>📖 Agenda Diario</span>
+          <button type="button" class="btn btn-primary btn-action" id="btnNuevaObservacion">➕ Añadir nota</button>
+        </div>
+        <div class="filters-grid" style="margin-bottom:0;">
+          <input type="date" id="filtroFechaDiario" class="input-control" aria-label="Filtrar por fecha">
+          <div style="display:flex; gap:4px;">
+            <input type="search" id="buscarDiario" class="input-control" placeholder="🔍 Notas, tareas, cal...">
+            <button type="button" class="btn btn-outline btn-action" id="btnVerTodoDiario" style="white-space:nowrap;">Todo</button>
+          </div>
+        </div>
+      </div>
+
+      <div id="listaDiario"></div>
+    </section>
+
+    <!-- PANTALLA 4: HISTÓRICO DE REALIZADAS -->
+    <section id="screen-historico" class="screen">
+      <div class="stats-row">
+        <div class="stat-box">
+          <div class="stat-num" id="statTotalRealizadas">0</div>
+          <div class="stat-label">Realizadas</div>
+        </div>
+        <div class="stat-box">
+          <div class="stat-num" id="statEsteMes">0</div>
+          <div class="stat-label">Este mes</div>
+        </div>
+        <div class="stat-box">
+          <div class="stat-num" id="statPendientesCount">0</div>
+          <div class="stat-label">Pendientes</div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="filters-grid">
+          <input type="search" id="buscarHistorico" class="input-control" placeholder="🔍 Buscar en histórico...">
+          <select id="filtroRelHistorico" class="input-control" aria-label="Filtrar relevancia histórico">
+            <option value="todas">Todas las relevancias</option>
+            <option value="alta">🔴 Alta</option>
+            <option value="media">🟠 Media</option>
+            <option value="baja">🔵 Baja</option>
+          </select>
+        </div>
+        <div style="display:flex; gap:6px; margin-top:4px;">
+          <button type="button" class="btn btn-success btn-action btn-block" id="btnExportarExcelHistorico">📊 Exportar consolidado a Excel</button>
+          <button type="button" class="btn btn-outline btn-action" id="btnLimpiarHistorico" title="Vaciar histórico">🗑️</button>
+        </div>
+        <div class="results-counter">
+          <span id="contadorHistorico">Mostrando 0 realizadas</span>
+        </div>
+      </div>
+
+      <div id="listaHistorico"></div>
+    </section>
+
+    <!-- PANTALLA 5: AJUSTES Y COPIA DE SEGURIDAD -->
+    <section id="screen-ajustes" class="screen">
+      <div class="card">
+        <h2 class="card-title">📊 Exportación a Excel (100 % sin conexión)</h2>
+        <p style="font-size:12.5px; color:var(--text-muted); margin-top:0;">
+          Genera un archivo de hoja de cálculo estructurado en dos pestañas: <strong>«Tareas»</strong> y <strong>«Agenda y Diario»</strong>.
+        </p>
+        <button type="button" class="btn btn-success btn-block" id="btnExportarExcelAjustes">📊 Exportar archivo consolidado Excel</button>
+      </div>
+
+      <div class="card">
+        <h2 class="card-title">⚙️ Apariencia, Calendario y Avisos</h2>
+        <div class="form-group">
+          <label for="cfgTema">Tema de color de la aplicación:</label>
+          <select id="cfgTema" class="input-control">
+            <option value="sistema">🌓 Automático (según el móvil)</option>
+            <option value="claro">☀️ Siempre Claro</option>
+            <option value="oscuro">🌙 Siempre Oscuro</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label for="cfgVistaDefecto">Vista de calendario preferida al abrir:</label>
+          <select id="cfgVistaDefecto" class="input-control">
+            <option value="mes">Vista Mensual</option>
+            <option value="semana">Vista Semanal</option>
+            <option value="agenda">Vista Agenda (30 días)</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label for="cfgDiasPreaviso">Días de antelación para destacar avisos próximos:</label>
+          <select id="cfgDiasPreaviso" class="input-control">
+            <option value="1">1 día antes</option>
+            <option value="3">3 días antes</option>
+            <option value="7">7 días antes</option>
+          </select>
+        </div>
+        <div class="form-group" style="margin-bottom:0;">
+          <label for="cfgMostrarRealizadasCal">Mostrar tareas ya realizadas en el calendario:</label>
+          <select id="cfgMostrarRealizadasCal" class="input-control">
+            <option value="si">Sí, mostrar con punto verde</option>
+            <option value="no">No, mostrar solo pendientes</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="card">
+        <h2 class="card-title">💾 Copia de seguridad (.json)</h2>
+        <p style="font-size:12.5px; color:var(--text-muted); margin-top:0; margin-bottom:4px;">
+          Guarda o restaura todas tus tareas, observaciones del Diario y notas del calendario en un archivo JSON.
+        </p>
+        <p id="textoUltimoBackup" style="font-size:12px; font-weight:700; color:var(--heading-color); margin-top:0; margin-bottom:8px;"></p>
+        <div style="display:flex; flex-direction:column; gap:6px;">
+          <button type="button" class="btn btn-primary btn-block" id="btnExportarBackup">⬇️ Copia de seguridad (.json)</button>
+          <label class="btn btn-outline btn-block" style="margin:0;">
+            ⬆️ Restaurar copia (.json)
+            <input type="file" id="inputRestaurarBackup" accept=".json" style="display:none;">
+          </label>
+        </div>
+      </div>
+
+      <div class="card">
+        <h2 class="card-title">🧪 Datos de prueba</h2>
+        <button type="button" class="btn btn-outline btn-block" id="btnCargarEjemplos">Cargar tareas y observaciones de ejemplo</button>
+      </div>
+
+      <div class="card">
+        <h2 class="card-title">ℹ️ Acerca de</h2>
+        <p style="margin:2px 0;"><strong>Tareas y Avisos</strong> — Versión 2.0</p>
+        <p style="margin:2px 0; color:var(--text-muted);">Aplicación creada por Manuel Vidal</p>
+      </div>
+    </section>
+  </main>
+
+  <!-- NAVEGACIÓN INFERIOR (5 PESTAÑAS) -->
+  <nav class="bottom-nav">
+    <button type="button" class="nav-item active" data-target="pendientes">
+      <span class="nav-icon">📋</span>
+      <span>Pendientes</span>
+    </button>
+    <button type="button" class="nav-item" data-target="calendario">
+      <span class="nav-icon">📅</span>
+      <span>Calendario</span>
+    </button>
+    <button type="button" class="nav-item" data-target="diario">
+      <span class="nav-icon">📖</span>
+      <span>Diario</span>
+    </button>
+    <button type="button" class="nav-item" data-target="historico">
+      <span class="nav-icon">✅</span>
+      <span>Histórico</span>
+    </button>
+    <button type="button" class="nav-item" data-target="ajustes">
+      <span class="nav-icon">⚙️</span>
+      <span>Ajustes</span>
+    </button>
+  </nav>
+
+  <!-- MODAL CREAR / EDITAR TAREA -->
+  <div class="modal-backdrop" id="modalTarea">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h2 id="tituloModalTarea">Nueva tarea o aviso</h2>
+        <button type="button" class="btn btn-outline btn-action" id="btnCerrarModalTarea">✕</button>
+      </div>
+      <form id="formTarea">
+        <input type="hidden" id="tareaId">
+        <div class="form-group">
+          <label for="tareaTitulo">Título *</label>
+          <input type="text" id="tareaTitulo" class="input-control" placeholder="Ej: Revisar seguro del coche" required>
+        </div>
+        <div class="filters-grid">
+          <div class="form-group">
+            <label for="tareaTipo">Tipo de registro</label>
+            <select id="tareaTipo" class="input-control">
+              <option value="tarea">📌 Tarea</option>
+              <option value="aviso">🔔 Aviso</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label for="tareaRelevancia">Relevancia</label>
+            <select id="tareaRelevancia" class="input-control">
+              <option value="alta">🔴 Alta (Urgente)</option>
+              <option value="media">🟠 Media (Importante)</option>
+              <option value="baja">🔵 Baja (Normal)</option>
+            </select>
+          </div>
+        </div>
+        <div class="filters-grid">
+          <div class="form-group">
+            <label for="tareaFecha">Fecha prevista *</label>
+            <input type="date" id="tareaFecha" class="input-control" required>
+          </div>
+          <div class="form-group">
+            <label for="tareaHora">Hora (opcional)</label>
+            <input type="time" id="tareaHora" class="input-control">
+          </div>
+        </div>
+        <div class="form-group">
+          <label for="tareaRepeticion">🔁 Repetir periódicamente</label>
+          <select id="tareaRepeticion" class="input-control">
+            <option value="ninguna">No repetir (una sola vez)</option>
+            <option value="semanal">🔁 Cada semana (Semanal)</option>
+            <option value="mensual">🔁 Cada mes (Mensual)</option>
+            <option value="anual">🔁 Cada año (Anual)</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label for="tareaNotas">Descripción u observaciones (usa «- [ ] » para checklist)</label>
+          <textarea id="tareaNotas" class="input-control" placeholder="Anota referencias, importes o pasos...&#10;Ejemplo de checklist:&#10;- [ ] Revisar recibo&#10;- [ ] Archivar PDF"></textarea>
+        </div>
+        <div style="display:flex; gap:6px; margin-top:10px;">
+          <button type="button" class="btn btn-outline btn-block" id="btnCancelarTarea">Cancelar</button>
+          <button type="submit" class="btn btn-primary btn-block">Guardar</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- MODAL COMPLETAR TAREA -->
+  <div class="modal-backdrop" id="modalCompletar">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h2>✅ Marcar como realizada</h2>
+        <button type="button" class="btn btn-outline btn-action" id="btnCerrarModalCompletar">✕</button>
+      </div>
+      <p id="textoTareaACompletar" style="font-weight:700; margin-top:0; font-size:14px;"></p>
+
+      <div id="infoRepeticionCompletar" class="recurrence-box" style="display:none;">
+        <div id="textoSiguienteRepeticion"></div>
+        <label class="checkbox-line">
+          <input type="checkbox" id="chkProgramarSiguiente" checked>
+          <span>Programar automáticamente la siguiente fecha</span>
+        </label>
+      </div>
+
+      <div class="form-group">
+        <label for="notaCierreInput">Observación de cierre (se registra en el Diario y en el Histórico):</label>
+        <textarea id="notaCierreInput" class="input-control" placeholder="Ej: Pagado 45€, factura guardada, comprobado todo OK..."></textarea>
+      </div>
+      <div style="display:flex; gap:6px;">
+        <button type="button" class="btn btn-outline btn-block" id="btnCancelarCompletar">Cancelar</button>
+        <button type="button" class="btn btn-success btn-block" id="btnConfirmarCompletar">Confirmar realizada</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL AÑADIR OBSERVACIÓN AL DIARIO -->
+  <div class="modal-backdrop" id="modalAnadirObsDiario">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h2 id="tituloModalAnadirObs">Añadir observación al día</h2>
+        <button type="button" class="btn btn-outline btn-action" id="btnCerrarModalAnadirObs">✕</button>
+      </div>
+      <form id="formAnadirObsDiario">
+        <div class="form-group">
+          <label for="inputFechaAnadirObs">Fecha:</label>
+          <input type="date" id="inputFechaAnadirObs" class="input-control" required>
+        </div>
+        <div id="previoObservacionesDia" class="info-box" style="display:none; max-height:90px; overflow-y:auto;"></div>
+        <div class="form-group">
+          <label for="inputTextoNuevaObs">Nueva observación (se añadirá con la hora actual):</label>
+          <textarea id="inputTextoNuevaObs" class="input-control" style="min-height:90px;" placeholder="Escribe aquí la nueva anotación..." required></textarea>
+        </div>
+        <div style="display:flex; gap:6px; margin-top:10px;">
+          <button type="button" class="btn btn-outline btn-block" id="btnCancelarAnadirObs">Cancelar</button>
+          <button type="submit" class="btn btn-primary btn-block">Añadir al Diario</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- MODAL EDITAR OBSERVACIÓN COMPLETA -->
+  <div class="modal-backdrop" id="modalEditarObsDiario">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h2>Editar observaciones del día</h2>
+        <button type="button" class="btn btn-outline btn-action" id="btnCerrarModalEditarObs">✕</button>
+      </div>
+      <form id="formEditarObsDiario">
+        <input type="hidden" id="editObsId">
+        <div class="form-group">
+          <label for="editObsFecha">Fecha:</label>
+          <input type="date" id="editObsFecha" class="input-control" required>
+        </div>
+        <div class="form-group">
+          <label for="editObsTexto">Texto completo de las observaciones:</label>
+          <textarea id="editObsTexto" class="input-control" style="min-height:120px;" required></textarea>
+        </div>
+        <div style="display:flex; gap:6px; margin-top:10px;">
+          <button type="button" class="btn btn-outline btn-block" id="btnCancelarEditarObs">Cancelar</button>
+          <button type="submit" class="btn btn-primary btn-block">Guardar cambios</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- MODAL EXPORTACIÓN A EXCEL -->
+  <div class="modal-backdrop" id="modalExportarExcel">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h2>📊 Exportar consolidado a Excel</h2>
+        <button type="button" class="btn btn-outline btn-action" id="btnCerrarModalExcel">✕</button>
+      </div>
+      
+      <div class="info-box">
+        Se generará un archivo de Excel (<strong>.xls</strong> nativo multihoja) sin necesidad de conexión a internet:
+        <ul style="margin:4px 0 0 16px; padding:0;">
+          <li><strong>Tareas:</strong> ID, Nombre, Tipo, Descripción, Creación, Estado, Traspasado, Finalización, Relevancia, Prevista.</li>
+          <li><strong>Agenda y Diario:</strong> Fecha, Hora, Tipo de Registro, Tareas vinculadas, Observaciones/Notas.</li>
+        </ul>
+      </div>
+
+      <form id="formExportarExcel">
+        <div class="form-group">
+          <label>📍 Ubicación de guardado:</label>
+          <div class="path-display" id="textoRutaDestinoActual">/Download/tareas/</div>
+          <button type="button" class="btn btn-outline btn-action btn-block" id="btnAlternarSelectorUbicacion">
+            📁 Cambiar ubicación
+          </button>
+        </div>
+
+        <div id="panelSelectorUbicacion" class="selector-panel">
+          <div class="form-group">
+            <label for="selectCarpetaExcel">Seleccionar carpeta:</label>
+            <select id="selectCarpetaExcel" class="input-control">
+              <option value="tareas" selected>📁 tareas (/Download/tareas/)</option>
+              <option value="Tareas y Avisos">📁 Tareas y Avisos (/Download/Tareas y Avisos/)</option>
+              <option value="agenda">📁 agenda (/Download/agenda/)</option>
+              <option value="documentos">📁 documentos (/Download/documentos/)</option>
+              <option value="__custom__">✏️ Escribir otra subcarpeta...</option>
+            </select>
+          </div>
+          <div class="form-group" id="grupoCarpetaPersonalizada" style="display:none; margin-bottom:0;">
+            <label for="inputCarpetaPersonalizada">Nombre de la carpeta:</label>
+            <input type="text" id="inputCarpetaPersonalizada" class="input-control" placeholder="Ej: tareas/2026 o informes">
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="inputNombreArchivoExcel">📄 Nombre del archivo:</label>
+          <input type="text" id="inputNombreArchivoExcel" class="input-control" required>
+        </div>
+
+        <div style="display:flex; gap:6px; margin-top:10px;">
+          <button type="button" class="btn btn-outline btn-block" id="btnCancelarExcel">Cancelar</button>
+          <button type="submit" class="btn btn-success btn-block">⬇️ Confirmar y Guardar</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- MODAL DE CONFIRMACIÓN -->
+  <div class="modal-backdrop" id="modalConfirmar">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h2 id="tituloConfirmar">Confirmar acción</h2>
+      </div>
+      <p id="mensajeConfirmar" style="margin-bottom:12px; font-size:13.5px;"></p>
+      <div style="display:flex; gap:6px;">
+        <button type="button" class="btn btn-outline btn-block" id="btnConfirmarNo">Cancelar</button>
+        <button type="button" class="btn btn-danger btn-block" id="btnConfirmarSi">Sí, continuar</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- TOAST DE AVISOS -->
+  <div id="toast"></div>
+
+  <script>
+    // CLAVES DE LOCALSTORAGE (INMUTABLES ENTRE VERSIONES)
+    const KEY_ITEMS = 'tareasyavisos.v1.items';
+    const KEY_NOTAS_DIA = 'tareasyavisos.v1.notasdia';
+    const KEY_CONFIG = 'tareasyavisos.v1.config';
+    const KEY_DIARIO = 'tareasyavisos.v1.diario';
+
+    // Estado
+    let tareas = [];
+    let notasDia = {};
+    let diario = [];
+    let config = {
+      tema: 'sistema',
+      vistaDefecto: 'mes',
+      diasPreaviso: 3,
+      mostrarRealizadasCal: 'si',
+      carpetaExcel: 'tareas',
+      ultimoBackup: null
+    };
+
+    let vistaCalActual = 'mes';
+    let fechaCursorCal = new Date();
+    let fechaSeleccionadaStr = obtenerFechaISOHoy();
+    let idTareaACompletar = null;
+    let accionConfirmarCallback = null;
+
+    // Función oficial para guardar en Android WebView y navegador
+    function guardarArchivo(nombre, contenido, carpeta) {
+      let b64;
+      if (typeof contenido === 'string') b64 = btoa(unescape(encodeURIComponent(contenido)));
+      else { let s = ''; for (let i = 0; i < contenido.length; i += 0x8000) s += String.fromCharCode.apply(null, contenido.subarray(i, i + 0x8000)); b64 = btoa(s); }
+      if (window.AndroidApp && window.AndroidApp.saveFile) {
+        const r = String(window.AndroidApp.saveFile(nombre, b64, carpeta || document.title));
+        return r.startsWith('ok:') ? 'Guardado en ' + r.slice(3) : 'No se pudo guardar: ' + r;
+      }
+      const a = document.createElement('a');
+      a.href = 'data:application/octet-stream;base64,' + b64; a.download = nombre; a.click();
+      return 'Descargado';
+    }
+
+    // Gestión del Tema Visual
+    function aplicarTemaVisual(tema) {
+      const root = document.documentElement;
+      if (tema === 'claro') root.setAttribute('data-theme', 'claro');
+      else if (tema === 'oscuro') root.setAttribute('data-theme', 'oscuro');
+      else root.removeAttribute('data-theme');
+    }
+
+    // Utilidades de fechas
+    function formatearDateAISO(d) {
+      const y = d.getFullYear();
+      const m = String(d.getMonth() + 1).padStart(2, '0');
+      const day = String(d.getDate()).padStart(2, '0');
+      return `${y}-${m}-${day}`;
+    }
+
+    function obtenerFechaISOHoy() {
+      return formatearDateAISO(new Date());
+    }
+
+    function obtenerHoraActualHHMM() {
+      const d = new Date();
+      return `${String(d.getHours()).padStart(2, '0')}:${String(d.getMinutes()).padStart(2, '0')}`;
+    }
+
+    function formatearFechaES(isoDate) {
+      if (!isoDate) return '';
+      const partes = isoDate.split('-');
+      if (partes.length !== 3) return isoDate;
+      return `${partes[2]}/${partes[1]}/${partes[0]}`;
+    }
+
+    function formatearFechaHoraES(isoString) {
+      if (!isoString) return '';
+      try {
+        const d = new Date(isoString);
+        const dia = String(d.getDate()).padStart(2, '0');
+        const mes = String(d.getMonth() + 1).padStart(2, '0');
+        const anio = d.getFullYear();
+        const hora = String(d.getHours()).padStart(2, '0');
+        const min = String(d.getMinutes()).padStart(2, '0');
+        return `${dia}/${mes}/${anio} ${hora}:${min}`;
+      } catch (e) {
+        return isoString;
+      }
+    }
+
+    function diferenciaDiasConHoy(isoDate) {
+      const hoyStr = obtenerFechaISOHoy();
+      const dHoy = new Date(hoyStr + 'T00:00:00');
+      const dObj = new Date(isoDate + 'T00:00:00');
+      return Math.round((dObj - dHoy) / (1000 * 60 * 60 * 24));
+    }
+
+    function sumarDiasAFechaISO(isoDate, dias) {
+      const base = isoDate || obtenerFechaISOHoy();
+      const partes = base.split('-').map(Number);
+      const d = new Date(partes[0], partes[1] - 1, partes[2]);
+      d.setDate(d.getDate() + dias);
+      return formatearDateAISO(d);
+    }
+
+    // Repeticiones
+    function sumarPasosRepeticion(isoDateBase, repeticion, pasos) {
+      if (!isoDateBase || !repeticion || repeticion === 'ninguna') return isoDateBase;
+      const partes = isoDateBase.split('-').map(Number);
+      const yBase = partes[0];
+      const mBase = partes[1] - 1;
+      const dBase = partes[2];
+
+      if (repeticion === 'semanal') {
+        const d = new Date(yBase, mBase, dBase);
+        d.setDate(d.getDate() + (7 * pasos));
+        return formatearDateAISO(d);
+      }
+
+      if (repeticion === 'mensual') {
+        const totalMeses = mBase + pasos;
+        const nuevoAnio = yBase + Math.floor(totalMeses / 12);
+        const nuevoMes = ((totalMeses % 12) + 12) % 12;
+        const maxDiasMes = new Date(nuevoAnio, nuevoMes + 1, 0).getDate();
+        const diaFinal = Math.min(dBase, maxDiasMes);
+        return formatearDateAISO(new Date(nuevoAnio, nuevoMes, diaFinal));
+      }
+
+      if (repeticion === 'anual') {
+        const nuevoAnio = yBase + pasos;
+        const maxDiasMes = new Date(nuevoAnio, mBase + 1, 0).getDate();
+        const diaFinal = Math.min(dBase, maxDiasMes);
+        return formatearDateAISO(new Date(nuevoAnio, mBase, diaFinal));
+      }
+
+      return isoDateBase;
+    }
+
+    function calcularSiguienteFecha(isoDateActual, repeticion) {
+      return sumarPasosRepeticion(isoDateActual, repeticion, 1);
+    }
+
+    function coincideConRepeticionFutura(tarea, fechaObjetivoStr) {
+      if (!tarea || tarea.completada) return false;
+      const rep = tarea.repeticion || 'ninguna';
+      if (rep === 'ninguna' || !tarea.fecha) return false;
+      if (fechaObjetivoStr <= tarea.fecha) return false;
+
+      if (rep === 'semanal') {
+        const dBase = new Date(tarea.fecha + 'T00:00:00');
+        const dObj = new Date(fechaObjetivoStr + 'T00:00:00');
+        const diffDias = Math.round((dObj - dBase) / (1000 * 60 * 60 * 24));
+        return diffDias > 0 && diffDias % 7 === 0;
+      }
+
+      if (rep === 'mensual') {
+        for (let k = 1; k <= 60; k++) {
+          const f = sumarPasosRepeticion(tarea.fecha, 'mensual', k);
+          if (f === fechaObjetivoStr) return true;
+          if (f > fechaObjetivoStr) return false;
+        }
+        return false;
+      }
+
+      if (rep === 'anual') {
+        for (let k = 1; k <= 25; k++) {
+          const f = sumarPasosRepeticion(tarea.fecha, 'anual', k);
+          if (f === fechaObjetivoStr) return true;
+          if (f > fechaObjetivoStr) return false;
+        }
+        return false;
+      }
+
+      return false;
+    }
+
+    function textoEtiquetaRepeticion(rep) {
+      if (rep === 'semanal') return '🔁 Semanal';
+      if (rep === 'mensual') return '🔁 Mensual';
+      if (rep === 'anual') return '🔁 Anual';
+      return '';
+    }
+
+    // Avisos / Toast
+    let toastTimer = null;
+    function mostrarAviso(texto) {
+      const t = document.getElementById('toast');
+      t.textContent = texto;
+      t.style.display = 'block';
+      if (toastTimer) clearTimeout(toastTimer);
+      toastTimer = setTimeout(() => {
+        t.style.display = 'none';
+      }, 3400);
+    }
+
+    function pedirConfirmacion(titulo, mensaje, callback) {
+      document.getElementById('tituloConfirmar').textContent = titulo;
+      document.getElementById('mensajeConfirmar').textContent = mensaje;
+      accionConfirmarCallback = callback;
+      document.getElementById('modalConfirmar').classList.add('open');
+    }
+
+    // Persistencia
+    function cargarDatos() {
+      try {
+        const rawItems = localStorage.getItem(KEY_ITEMS);
+        if (rawItems) {
+          tareas = JSON.parse(rawItems).map(t => Object.assign({ repeticion: 'ninguna', traspasado: false }, t));
+        }
+      } catch (e) { tareas = []; }
+
+      try {
+        const rawNotas = localStorage.getItem(KEY_NOTAS_DIA);
+        if (rawNotas) notasDia = JSON.parse(rawNotas);
+      } catch (e) { notasDia = {}; }
+
+      try {
+        const rawDiario = localStorage.getItem(KEY_DIARIO);
+        if (rawDiario) {
+          diario = JSON.parse(rawDiario).filter(d => d.tipo !== 'creacion');
+        }
+      } catch (e) { diario = []; }
+
+      try {
+        const rawCfg = localStorage.getItem(KEY_CONFIG);
+        if (rawCfg) config = Object.assign(config, JSON.parse(rawCfg));
+      } catch (e) {}
+
+      if (!config.carpetaExcel) config.carpetaExcel = 'tareas';
+      if (!config.tema) config.tema = 'sistema';
+
+      aplicarTemaVisual(config.tema);
+
+      if (!localStorage.getItem(KEY_ITEMS)) {
+        cargarEjemplosIniciales(true);
+      }
+
+      vistaCalActual = config.vistaDefecto || 'mes';
+      sincronizarSelectoresAjustes();
+      actualizarBotonesVistaCalendario();
+    }
+
+    function guardarTareas() {
+      try { localStorage.setItem(KEY_ITEMS, JSON.stringify(tareas)); }
+      catch (e) { mostrarAviso('Error al guardar tareas'); }
+    }
+
+    function guardarNotasDia() {
+      try { localStorage.setItem(KEY_NOTAS_DIA, JSON.stringify(notasDia)); }
+      catch (e) {}
+    }
+
+    function guardarDiario() {
+      try { localStorage.setItem(KEY_DIARIO, JSON.stringify(diario)); }
+      catch (e) { mostrarAviso('Error al guardar el diario'); }
+    }
+
+    function guardarConfig() {
+      try { localStorage.setItem(KEY_CONFIG, JSON.stringify(config)); }
+      catch (e) {}
+    }
+
+    function cargarEjemplosIniciales(silencioso) {
+      const hoy = obtenerFechaISOHoy();
+      const mananaDate = new Date();
+      mananaDate.setDate(mananaDate.getDate() + 2);
+      const pasadoStr = formatearDateAISO(mananaDate);
+      const horaAhora = obtenerHoraActualHHMM();
+
+      const t1Id = 'ej-' + Date.now() + '-1';
+      const t2Id = 'ej-' + Date.now() + '-2';
+
+      const ejemplos = [
+        {
+          id: t1Id,
+          titulo: '[Ejemplo] Revisar recibo mensual e impuestos',
+          tipo: 'aviso',
+          relevancia: 'alta',
+          repeticion: 'mensual',
+          fecha: hoy,
+          hora: '10:00',
+          notas: '- [ ] Comprobar cargo en banco\n- [ ] Archivar recibo en carpeta',
+          completada: false,
+          traspasado: false,
+          fechaCreacion: new Date().toISOString(),
+          fechaCompletada: null,
+          notaCierre: ''
+        },
+        {
+          id: t2Id,
+          titulo: '[Ejemplo] Renovar seguro anual del vehículo',
+          tipo: 'tarea',
+          relevancia: 'media',
+          repeticion: 'anual',
+          fecha: pasadoStr,
+          hora: '',
+          notas: 'Revisar coberturas un mes antes del vencimiento.',
+          completada: false,
+          traspasado: false,
+          fechaCreacion: new Date().toISOString(),
+          fechaCompletada: null,
+          notaCierre: ''
+        }
+      ];
+
+      tareas = tareas.concat(ejemplos);
+      guardarTareas();
+
+      diario.push({
+        id: 'd-' + Date.now() + '-1',
+        fecha: hoy,
+        hora: horaAhora,
+        fechaHoraISO: new Date().toISOString(),
+        tipo: 'manual',
+        tareaId: null,
+        tituloTarea: '',
+        texto: `[${horaAhora}] Inicio de jornada: revisión de temas pendientes.`
+      });
+      guardarDiario();
+
+      renderizarTodo();
+      if (!silencioso) mostrarAviso('Tareas de ejemplo añadidas');
+    }
+
+    function esc(str) {
+      if (!str) return '';
+      return String(str)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;');
+    }
+
+    function renderizarTodo() {
+      renderizarAvisoBackup();
+      renderizarAvisosUrgentes();
+      renderizarPendientes();
+      renderizarCalendario();
+      renderizarDetalleDia(fechaSeleccionadaStr);
+      renderizarDiario();
+      renderizarHistorico();
+      actualizarInfoBackupAjustes();
+    }
+
+    // Aviso preventivo de copia de seguridad (>15 días)
+    function renderizarAvisoBackup() {
+      const panel = document.getElementById('panelAvisoBackup');
+      if (!panel) return;
+      if (tareas.length === 0 && diario.length === 0) {
+        panel.style.display = 'none';
+        return;
+      }
+
+      let mostrar = false;
+      let textoAviso = '';
+      if (!config.ultimoBackup) {
+        if (tareas.length >= 3) {
+          mostrar = true;
+          textoAviso = 'Aún no has guardado ninguna copia de seguridad (.json).';
+        }
+      } else {
+        const diffMs = Date.now() - new Date(config.ultimoBackup).getTime();
+        const dias = Math.floor(diffMs / (1000 * 60 * 60 * 24));
+        if (dias >= 15) {
+          mostrar = true;
+          textoAviso = `Han pasado ${dias} días desde tu última copia de seguridad.`;
+        }
+      }
+
+      if (!mostrar) {
+        panel.style.display = 'none';
+        return;
+      }
+
+      panel.style.display = 'flex';
+      panel.innerHTML = `
+        <div style="font-size:12px; color:var(--text-main);">
+          <strong>💾 Recordatorio:</strong> ${textoAviso}
+        </div>
+        <button type="button" class="btn btn-outline btn-action" style="white-space:nowrap;" onclick="exportarCopiaSeguridadJSON()">Guardar .json</button>
+      `;
+    }
+
+    // 1. Panel de avisos
+    function renderizarAvisosUrgentes() {
+      const panel = document.getElementById('panelAvisosUrgentes');
+      const diasAviso = parseInt(config.diasPreaviso, 10) || 3;
+      const pendientes = tareas.filter(t => !t.completada);
+
+      const alertas = pendientes.filter(t => {
+        const diff = diferenciaDiasConHoy(t.fecha);
+        return diff <= diasAviso;
+      }).sort((a, b) => a.fecha.localeCompare(b.fecha));
+
+      if (alertas.length === 0) {
+        panel.className = 'card alert-banner ok';
+        panel.innerHTML = `
+          <div style="display:flex; align-items:center; gap:8px;">
+            <span style="font-size:18px;">✅</span>
+            <div>
+              <strong style="font-size:13px; color:var(--text-main);">Todo al día</strong>
+              <div style="font-size:11.5px; color:var(--text-muted);">Sin tareas vencidas ni avisos próximos (${diasAviso}d).</div>
+            </div>
+          </div>
+        `;
+        return;
+      }
+
+      panel.className = 'card alert-banner';
+      let html = `<div style="font-size:13.5px; font-weight:700; color:var(--red); margin-bottom:4px;">
+        🔔 ${alertas.length} ${alertas.length === 1 ? 'aviso prioritario' : 'avisos prioritarios'}
+      </div>`;
+
+      alertas.slice(0, 4).forEach(t => {
+        const diff = diferenciaDiasConHoy(t.fecha);
+        let etiquetaEstado = '';
+        if (diff < 0) etiquetaEstado = `<span class="badge badge-vencida">Vencida (${Math.abs(diff)}d)</span>`;
+        else if (diff === 0) etiquetaEstado = `<span class="badge badge-hoy">Hoy</span>`;
+        else etiquetaEstado = `<span class="badge badge-media">En ${diff}d</span>`;
+
+        html += `
+          <div class="alert-item">
+            <div style="flex:1; min-width:0;">
+              <div style="font-weight:700; font-size:13px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; color:var(--text-main);">${esc(t.titulo)}</div>
+              <div style="font-size:11px; color:var(--text-muted);">
+                ${etiquetaEstado} ${t.traspasado ? '<span class="badge badge-traspasado">📲 En Google</span>' : ''} · ${formatearFechaES(t.fecha)} ${t.hora ? t.hora : ''}
+              </div>
+            </div>
+            <div style="display:flex; gap:4px; flex-shrink:0;">
+              <button type="button" class="btn btn-outline btn-action" onclick="posponerTareaRapido('${t.id}', 1)" title="Posponer 1 día">+1d</button>
+              <button type="button" class="btn btn-success btn-action" onclick="abrirModalCompletar('${t.id}')">✓ Hecho</button>
+            </div>
+          </div>
+        `;
+      });
+
+      panel.innerHTML = html;
+    }
+
+    // 2. Lista de pendientes y estado del botón de filtros/orden
+    function pesoRelevancia(rel) {
+      if (rel === 'alta') return 3;
+      if (rel === 'media') return 2;
+      return 1;
+    }
+
+    function actualizarEstadoBotonFiltros() {
+      const btn = document.getElementById('btnToggleFiltrosPendientes');
+      const panel = document.getElementById('panelFiltrosPendientes');
+      if (!btn || !panel) return;
+
+      const relFiltro = document.getElementById('filtroRelevancia').value;
+      const tipoFiltro = document.getElementById('filtroTipo').value;
+      const repFiltro = document.getElementById('filtroRepeticion').value;
+      const orden = document.getElementById('ordenPendientes').value;
+
+      let activos = 0;
+      if (relFiltro !== 'todas') activos++;
+      if (tipoFiltro !== 'todos') activos++;
+      if (repFiltro !== 'todas') activos++;
+      if (orden !== 'fecha') activos++;
+
+      const abierto = panel.classList.contains('open');
+      const flecha = abierto ? '▴' : '▾';
+      btn.textContent = activos > 0 ? `🎛️ Ordenar (${activos}) ${flecha}` : `🎛️ Ordenar ${flecha}`;
+      btn.classList.toggle('has-active-filters', activos > 0);
+      btn.setAttribute('aria-expanded', abierto ? 'true' : 'false');
+    }
+
+    function renderizarPendientes() {
+      actualizarEstadoBotonFiltros();
+
+      const cont = document.getElementById('listaPendientes');
+      const relFiltro = document.getElementById('filtroRelevancia').value;
+      const tipoFiltro = document.getElementById('filtroTipo').value;
+      const repFiltro = document.getElementById('filtroRepeticion').value;
+      const texto = document.getElementById('buscarPendientes').value.trim().toLowerCase();
+      const orden = document.getElementById('ordenPendientes').value;
+
+      const todasPendientes = tareas.filter(t => !t.completada);
+      let lista = todasPendientes.slice();
+
+      if (relFiltro !== 'todas') lista = lista.filter(t => t.relevancia === relFiltro);
+      if (tipoFiltro !== 'todos') lista = lista.filter(t => t.tipo === tipoFiltro);
+      if (repFiltro !== 'todas') {
+        if (repFiltro === 'repetitivas') lista = lista.filter(t => t.repeticion && t.repeticion !== 'ninguna');
+        else lista = lista.filter(t => (t.repeticion || 'ninguna') === repFiltro);
+      }
+      if (texto) {
+        lista = lista.filter(t =>
+          (t.titulo && t.titulo.toLowerCase().includes(texto)) ||
+          (t.notas && t.notas.toLowerCase().includes(texto))
+        );
+      }
+
+      lista.sort((a, b) => {
+        if (orden === 'relevancia') {
+          const diffRel = pesoRelevancia(b.relevancia) - pesoRelevancia(a.relevancia);
+          if (diffRel !== 0) return diffRel;
+        }
+        const fA = (a.fecha || '9999-99-99') + (a.hora || '23:59');
+        const fB = (b.fecha || '9999-99-99') + (b.hora || '23:59');
+        const diffFecha = fA.localeCompare(fB);
+        if (diffFecha !== 0) return diffFecha;
+        return (a.titulo || '').localeCompare(b.titulo || '', 'es', { sensitivity: 'base' });
+      });
+
+      const contadorEl = document.getElementById('contadorPendientes');
+      if (contadorEl) {
+        contadorEl.textContent = `Mostrando ${lista.length} de ${todasPendientes.length} pendientes`;
+      }
+
+      if (lista.length === 0) {
+        cont.innerHTML = `<div class="card empty-state">No hay tareas pendientes con estos filtros.</div>`;
+        return;
+      }
+
+      cont.innerHTML = lista.map(t => crearHTMLTarjetaTarea(t)).join('');
+    }
+
+    // Formateo de notas con soporte de checklist interactivo (- [ ] y - [x])
+    function formatearNotasConChecklist(tarea) {
+      if (!tarea.notas) return '';
+      const lineas = tarea.notas.split('\n');
+      const tieneChecklist = lineas.some(l => /^\s*-\s*\[([ xX])\]\s*/.test(l));
+      if (!tieneChecklist) {
+        return `<div class="task-notes">${esc(tarea.notas)}</div>`;
+      }
+
+      const htmlLineas = lineas.map((linea, idx) => {
+        const match = linea.match(/^\s*-\s*\[([ xX])\]\s*(.*)$/);
+        if (match) {
+          const marcado = match[1].toLowerCase() === 'x';
+          const textoItem = match[2];
+          return `
+            <label class="checklist-row ${marcado ? 'checked' : ''}">
+              <input type="checkbox" ${marcado ? 'checked' : ''} onchange="alternarItemChecklist('${tarea.id}', ${idx})">
+              <span>${esc(textoItem)}</span>
+            </label>
+          `;
+        }
+        return linea ? `<div>${esc(linea)}</div>` : `<div style="height:6px;"></div>`;
+      }).join('');
+
+      return `<div class="task-notes" style="white-space:normal;">${htmlLineas}</div>`;
+    }
+
+    function alternarItemChecklist(tareaId, indiceLinea) {
+      const t = tareas.find(x => x.id === tareaId);
+      if (!t || !t.notas) return;
+      const lineas = t.notas.split('\n');
+      if (indiceLinea < 0 || indiceLinea >= lineas.length) return;
+
+      const linea = lineas[indiceLinea];
+      if (/^\s*-\s*\[\s\]\s*/.test(linea)) {
+        lineas[indiceLinea] = linea.replace(/^(\s*-\s*)\[\s\]/, '$1[x]');
+      } else if (/^\s*-\s*\[[xX]\]\s*/.test(linea)) {
+        lineas[indiceLinea] = linea.replace(/^(\s*-\s*)\[[xX]\]/, '$1[ ]');
+      }
+
+      t.notas = lineas.join('\n');
+      guardarTareas();
+      renderizarTodo();
+    }
+
+    function posponerTareaRapido(id, dias) {
+      const t = tareas.find(x => x.id === id);
+      if (!t) return;
+      const base = diferenciaDiasConHoy(t.fecha) < 0 ? obtenerFechaISOHoy() : t.fecha;
+      t.fecha = sumarDiasAFechaISO(base, dias);
+      guardarTareas();
+      renderizarTodo();
+      mostrarAviso(`⏭️ Pospuesta al ${formatearFechaES(t.fecha)}`);
+    }
+
+    function compartirTarea(id) {
+      const t = tareas.find(x => x.id === id);
+      if (!t) return;
+      const tipoLabel = t.tipo === 'aviso' ? '🔔 Aviso' : '📌 Tarea';
+      const lineas = [
+        `${tipoLabel}: ${t.titulo}`,
+        `📅 Fecha: ${formatearFechaES(t.fecha)}${t.hora ? ' a las ' + t.hora : ''}`
+      ];
+      if (t.notas) lineas.push(`📝 Notas:\n${t.notas}`);
+      const textoCompartir = lineas.join('\n');
+
+      if (navigator.share) {
+        navigator.share({
+          title: t.titulo,
+          text: textoCompartir
+        }).catch(() => {});
+      } else {
+        copiarTextoSeguro(textoCompartir);
+        mostrarAviso('📤 Datos copiados al portapapeles para compartir');
+      }
+    }
+
+    function crearHTMLTarjetaTarea(t, esProyeccionFutura, fechaProyectada) {
+      const fechaMostrar = esProyeccionFutura ? fechaProyectada : t.fecha;
+      const diff = diferenciaDiasConHoy(fechaMostrar);
+      let badgeFecha = '';
+      if (!t.completada && !esProyeccionFutura) {
+        if (diff < 0) badgeFecha = `<span class="badge badge-vencida">Vencida</span>`;
+        else if (diff === 0) badgeFecha = `<span class="badge badge-hoy">Para Hoy</span>`;
+      }
+
+      const labelRel = t.relevancia === 'alta' ? '🔴 Alta' : (t.relevancia === 'media' ? '🟠 Media' : '🔵 Baja');
+      const labelTipo = t.tipo === 'aviso' ? '🔔 Aviso' : '📌 Tarea';
+      const labelRep = textoEtiquetaRepeticion(t.repeticion);
+      const badgeTraspasado = t.traspasado ? `<span class="badge badge-traspasado" title="Traspasado a Google">📲 En Google</span>` : '';
+
+      return `
+        <div class="card task-card rel-${t.relevancia} ${t.completada ? 'done' : ''} ${esProyeccionFutura ? 'projected' : ''}">
+          <div class="task-header">
+            <h3 class="task-title">${esc(t.titulo)}</h3>
+            <span class="badge badge-${t.relevancia}">${labelRel}</span>
+          </div>
+          <div class="task-meta">
+            <span class="badge badge-tipo">${labelTipo}</span>
+            ${badgeTraspasado}
+            ${labelRep ? `<span class="badge badge-rep">${labelRep}</span>` : ''}
+            <span>📅 ${formatearFechaES(fechaMostrar)}${t.hora ? ' ⏰ ' + esc(t.hora) : ''}</span>
+            ${badgeFecha}
+            ${esProyeccionFutura ? `<span class="badge badge-rep">Próxima repetición</span>` : ''}
+          </div>
+          ${t.notas ? formatearNotasConChecklist(t) : ''}
+          ${t.completada && t.notaCierre ? `<div class="task-notes task-notes-cierre"><strong>Cierre:</strong> ${esc(t.notaCierre)}</div>` : ''}
+          ${t.completada && t.fechaCompletada ? `<div style="font-size:11px; color:var(--green); font-weight:700; margin-bottom:4px;">✓ Realizada: ${formatearFechaHoraES(t.fechaCompletada)}</div>` : ''}
+          <div class="task-actions">
+            ${esProyeccionFutura ? `
+              <button type="button" class="btn btn-outline btn-action" onclick="seleccionarDiaCalendario('${t.fecha}')">📅 Ir al turno actual</button>
+              <button type="button" class="btn btn-outline btn-action" onclick="abrirModalEditar('${t.id}')">✏️ Editar repetición</button>
+            ` : (!t.completada ? `
+              <button type="button" class="btn btn-success btn-action" onclick="abrirModalCompletar('${t.id}')">✓ Completar</button>
+              <button type="button" class="btn btn-outline btn-action" onclick="posponerTareaRapido('${t.id}', 1)" title="Posponer 1 día">⏭️ +1d</button>
+              <button type="button" class="btn btn-outline btn-action" onclick="posponerTareaRapido('${t.id}', 7)" title="Posponer 1 semana">⏭️ +7d</button>
+              <button type="button" class="btn btn-outline btn-action" onclick="traspasarAGoogleCalendar('${t.id}')" title="Abre Google Calendar con todos los campos ya rellenados">
+                ${t.traspasado ? '✓ Cal' : '📅 Cal'}
+              </button>
+              <button type="button" class="btn btn-outline btn-action" onclick="traspasarAGoogleTasksWeb('${t.id}')" title="Copia los datos y abre Google Tasks">
+                📋 Tasks
+              </button>
+              <button type="button" class="btn btn-outline btn-action" onclick="compartirTarea('${t.id}')" title="Compartir por WhatsApp / Email">📤</button>
+              <button type="button" class="btn btn-outline btn-action" onclick="abrirModalEditar('${t.id}')" title="Editar">✏️</button>
+              <button type="button" class="btn btn-outline btn-action" style="color:var(--red);" onclick="confirmarBorrarTarea('${t.id}')" title="Eliminar">🗑️</button>
+            ` : `
+              <button type="button" class="btn btn-outline btn-action" onclick="reabrirTarea('${t.id}')">↩️ Reabrir</button>
+              <button type="button" class="btn btn-outline btn-action" onclick="compartirTarea('${t.id}')" title="Compartir">📤</button>
+              <button type="button" class="btn btn-outline btn-action" onclick="abrirModalEditar('${t.id}')">✏️ Editar</button>
+              <button type="button" class="btn btn-outline btn-action" style="color:var(--red);" onclick="confirmarBorrarTarea('${t.id}')">🗑️</button>
+            `)}
+          </div>
+        </div>
+      `;
+    }
+
+    // Copiar al portapapeles auxiliar
+    function copiarTextoSeguro(texto) {
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(texto).catch(() => {});
+      } else {
+        const ta = document.createElement('textarea');
+        ta.value = texto;
+        document.body.appendChild(ta);
+        ta.select();
+        try { document.execCommand('copy'); } catch(e){}
+        document.body.removeChild(ta);
+      }
+    }
+
+    // Traspaso a Google Calendar
+    function traspasarAGoogleCalendar(id) {
+      const t = tareas.find(x => x.id === id);
+      if (!t) return;
+
+      t.traspasado = true;
+      guardarTareas();
+      renderizarTodo();
+
+      const resumenTexto = `${t.titulo}${t.notas ? '\n' + t.notas : ''}`;
+      copiarTextoSeguro(resumenTexto);
+
+      const partes = t.fecha.split('-');
+      const fechaCompacta = partes.join('');
+      let fechasParam = `${fechaCompacta}/${fechaCompacta}`;
+      if (t.hora) {
+        const hParts = t.hora.split(':');
+        const inicio = `${fechaCompacta}T${hParts[0]}${hParts[1]}00`;
+        const finHora = String((parseInt(hParts[0], 10) + 1) % 24).padStart(2, '0');
+        const fin = `${fechaCompacta}T${finHora}${hParts[1]}00`;
+        fechasParam = `${inicio}/${fin}`;
+      }
+      let rruleParam = '';
+      if (t.repeticion === 'semanal') rruleParam = '&recur=RRULE:FREQ=WEEKLY';
+      else if (t.repeticion === 'mensual') rruleParam = '&recur=RRULE:FREQ=MONTHLY';
+      else if (t.repeticion === 'anual') rruleParam = '&recur=RRULE:FREQ=YEARLY';
+
+      const prefijoTipo = t.tipo === 'tarea' ? '[Tarea] ' : '[Aviso] ';
+      const urlCalendar = `https://calendar.google.com/calendar/render?action=TEMPLATE&text=${encodeURIComponent(prefijoTipo + t.titulo)}&details=${encodeURIComponent(t.notas || '')}&dates=${fechasParam}${rruleParam}`;
+      window.open(urlCalendar, '_blank');
+      mostrarAviso('📲 Abriendo Google Calendar con todos los campos listos');
+    }
+
+    // Traspaso a Google Tasks Web
+    function traspasarAGoogleTasksWeb(id) {
+      const t = tareas.find(x => x.id === id);
+      if (!t) return;
+
+      t.traspasado = true;
+      guardarTareas();
+      renderizarTodo();
+
+      const textoCopiado = `${t.titulo}${t.fecha ? ' (' + formatearFechaES(t.fecha) + ')' : ''}${t.notas ? ' - ' + t.notas : ''}`;
+      copiarTextoSeguro(textoCopiado);
+
+      const urlTasks = `https://tasks.google.com/embed/?origin=https://calendar.google.com`;
+      window.open(urlTasks, '_blank');
+      mostrarAviso('📋 Texto copiado al portapapeles. Pégalo en Google Tasks');
+    }
+
+    // 3. Calendario Configurable
+    const NOMBRES_MESES = ['enero', 'febrero', 'marzo', 'abril', 'mayo', 'junio', 'julio', 'agosto', 'septiembre', 'octubre', 'noviembre', 'diciembre'];
+    const DIAS_SEMANA_CORTO = ['L', 'M', 'X', 'J', 'V', 'S', 'D'];
+
+    function renderizarCalendario() {
+      const cont = document.getElementById('contenedorRejillaCalendario');
+      const titulo = document.getElementById('calTituloPeriodo');
+      const panelDia = document.getElementById('panelDiaSeleccionado');
+
+      if (vistaCalActual === 'agenda') {
+        titulo.textContent = 'Agenda (Próximos 30 días)';
+        panelDia.style.display = 'none';
+        renderizarVistaAgenda(cont);
+        return;
+      }
+
+      panelDia.style.display = 'block';
+
+      if (vistaCalActual === 'mes') {
+        const anio = fechaCursorCal.getFullYear();
+        const mes = fechaCursorCal.getMonth();
+        titulo.textContent = `${NOMBRES_MESES[mes]} ${anio}`;
+        renderizarVistaMes(cont, anio, mes);
+      } else {
+        renderizarVistaSemana(cont, titulo);
+      }
+    }
+
+    function obtenerItemsDeFecha(fechaStr) {
+      const mostrarDone = config.mostrarRealizadasCal === 'si';
+      const resultado = [];
+
+      tareas.forEach(t => {
+        if (!mostrarDone && t.completada) return;
+        if (t.fecha === fechaStr) {
+          resultado.push({ tarea: t, proyectada: false, fecha: fechaStr });
+        } else if (coincideConRepeticionFutura(t, fechaStr)) {
+          resultado.push({ tarea: t, proyectada: true, fecha: fechaStr });
+        }
+      });
+
+      return resultado;
+    }
+
+    function renderizarVistaMes(cont, anio, mes) {
+      const primerDiaMes = new Date(anio, mes, 1);
+      const ultimoDiaMes = new Date(anio, mes + 1, 0);
+
+      let offsetInicio = (primerDiaMes.getDay() + 6) % 7;
+      const totalDiasMes = ultimoDiaMes.getDate();
+
+      let html = `<div class="cal-grid-header">
+        ${DIAS_SEMANA_CORTO.map(d => `<div>${d}</div>`).join('')}
+      </div><div class="cal-grid">`;
+
+      for (let i = 0; i < offsetInicio; i++) {
+        html += `<div class="cal-day other-month"></div>`;
+      }
+
+      const hoyStr = obtenerFechaISOHoy();
+      for (let dia = 1; dia <= totalDiasMes; dia++) {
+        const fechaStr = `${anio}-${String(mes + 1).padStart(2, '0')}-${String(dia).padStart(2, '0')}`;
+        const itemsDia = obtenerItemsDeFecha(fechaStr);
+        html += construirCeldaDiaHTML(dia, fechaStr, hoyStr, itemsDia);
+      }
+
+      html += `</div>`;
+      cont.innerHTML = html;
+    }
+
+    function renderizarVistaSemana(cont, tituloEl) {
+      const cursor = new Date(fechaCursorCal);
+      const diaSem = (cursor.getDay() + 6) % 7;
+      const lunes = new Date(cursor);
+      lunes.setDate(cursor.getDate() - diaSem);
+
+      const domingo = new Date(lunes);
+      domingo.setDate(lunes.getDate() + 6);
+
+      tituloEl.textContent = `${lunes.getDate()} ${NOMBRES_MESES[lunes.getMonth()].slice(0,3)} - ${domingo.getDate()} ${NOMBRES_MESES[domingo.getMonth()].slice(0,3)}`;
+
+      let html = `<div class="cal-grid-header">
+        ${DIAS_SEMANA_CORTO.map(d => `<div>${d}</div>`).join('')}
+      </div><div class="cal-grid">`;
+
+      const hoyStr = obtenerFechaISOHoy();
+      for (let i = 0; i < 7; i++) {
+        const d = new Date(lunes);
+        d.setDate(lunes.getDate() + i);
+        const fStr = formatearDateAISO(d);
+        const itemsDia = obtenerItemsDeFecha(fStr);
+        html += construirCeldaDiaHTML(d.getDate(), fStr, hoyStr, itemsDia);
+      }
+
+      html += `</div>`;
+      cont.innerHTML = html;
+    }
+
+    function construirCeldaDiaHTML(numeroDia, fechaStr, hoyStr, itemsDelDia) {
+      const esHoy = fechaStr === hoyStr ? 'today' : '';
+      const esSel = fechaStr === fechaSeleccionadaStr ? 'selected' : '';
+      const tieneNota = (notasDia[fechaStr] && notasDia[fechaStr].trim().length > 0) ||
+                        diario.some(d => d.fecha === fechaStr);
+
+      const puntos = itemsDelDia.slice(0, 4).map(item => {
+        const t = item.tarea;
+        if (t.completada) return `<span class="dot dot-done"></span>`;
+        if (item.proyectada) return `<span class="dot dot-rep"></span>`;
+        return `<span class="dot dot-${t.relevancia}"></span>`;
+      }).join('');
+
+      return `
+        <div class="cal-day ${esHoy} ${esSel}" onclick="seleccionarDiaCalendario('${fechaStr}')">
+          <div class="cal-day-num">${numeroDia}</div>
+          ${tieneNota ? `<div class="note-indicator">📝</div>` : ''}
+          <div class="cal-dots">${puntos}</div>
+        </div>
+      `;
+    }
+
+    function renderizarVistaAgenda(cont) {
+      const hoyDate = new Date();
+      const entradasAgenda = [];
+
+      for (let i = 0; i <= 30; i++) {
+        const d = new Date(hoyDate);
+        d.setDate(hoyDate.getDate() + i);
+        const fStr = formatearDateAISO(d);
+        const items = obtenerItemsDeFecha(fStr);
+        items.forEach(it => entradasAgenda.push(it));
+      }
+
+      if (entradasAgenda.length === 0) {
+        cont.innerHTML = `<div class="empty-state">No hay tareas programadas para los próximos 30 días.</div>`;
+        return;
+      }
+
+      let html = '';
+      let fechaActualGrupo = '';
+      entradasAgenda.forEach(item => {
+        if (item.fecha !== fechaActualGrupo) {
+          fechaActualGrupo = item.fecha;
+          html += `<div style="font-weight:700; color:var(--heading-color); margin:8px 0 4px 0; border-bottom:1px solid var(--border); padding-bottom:2px; font-size:13px;">
+            📅 ${formatearFechaES(fechaActualGrupo)}
+          </div>`;
+        }
+        html += crearHTMLTarjetaTarea(item.tarea, item.proyectada, item.fecha);
+      });
+      cont.innerHTML = html;
+    }
+
+    function seleccionarDiaCalendario(fechaStr) {
+      fechaSeleccionadaStr = fechaStr;
+      const partes = fechaStr.split('-').map(Number);
+      fechaCursorCal = new Date(partes[0], partes[1] - 1, partes[2]);
+      renderizarCalendario();
+      renderizarDetalleDia(fechaStr);
+    }
+
+    function renderizarDetalleDia(fechaStr) {
+      document.getElementById('tituloDiaSeleccionado').textContent = `📅 Día ${formatearFechaES(fechaStr)}`;
+      document.getElementById('notaRapidaDia').value = notasDia[fechaStr] || '';
+
+      const cont = document.getElementById('listaTareasDia');
+      const itemsDelDia = obtenerItemsDeFecha(fechaStr).sort((a, b) => {
+        if (a.tarea.completada !== b.tarea.completada) return a.tarea.completada ? 1 : -1;
+        if (a.proyectada !== b.proyectada) return a.proyectada ? 1 : -1;
+        return pesoRelevancia(b.tarea.relevancia) - pesoRelevancia(a.tarea.relevancia);
+      });
+
+      const obsDelDia = diario.filter(d => d.fecha === fechaStr);
+
+      let html = '';
+      if (itemsDelDia.length > 0) {
+        html += itemsDelDia.map(it => crearHTMLTarjetaTarea(it.tarea, it.proyectada, it.fecha)).join('');
+      }
+
+      if (obsDelDia.length > 0) {
+        html += `<div style="font-weight:700; color:var(--heading-color); margin:8px 0 4px 0; font-size:12.5px;">📖 Diario de este día (${obsDelDia.length}):</div>`;
+        html += obsDelDia.map(d => {
+          if (d.tipo === 'manual') {
+            return `
+              <div class="card" style="border-left:4px solid var(--accent); padding:6px 8px; margin-bottom:5px;">
+                <div style="font-size:12px; white-space:pre-wrap; color:var(--text-main);">${esc(d.texto)}</div>
+                <div style="display:flex; gap:4px; margin-top:4px;">
+                  <button type="button" class="btn btn-outline btn-action" onclick="abrirModalAnadirObs('${d.fecha}')">➕ Añadir nota</button>
+                  <button type="button" class="btn btn-outline btn-action" onclick="abrirModalEditarObs('${d.id}')">✏️ Editar todo</button>
+                </div>
+              </div>`;
+          } else {
+            return `
+              <div class="diary-task-completed" style="border-radius:6px; margin-bottom:4px;">
+                <div>
+                  <strong>✅ ${esc(d.tituloTarea)}</strong>
+                  <div style="font-size:11.5px; margin-top:2px; white-space:pre-wrap;">${esc(d.texto)}</div>
+                </div>
+                <span class="diary-time-badge">${esc(d.hora)}</span>
+              </div>`;
+          }
+        }).join('');
+      }
+
+      if (!html) {
+        cont.innerHTML = `<div class="empty-state" style="padding:10px;">Sin tareas ni observaciones en este día.</div>`;
+      } else {
+        cont.innerHTML = html;
+      }
+    }
+
+    // 4. Agenda Diario (unificado con notas fijas del calendario)
+    function renderizarDiario() {
+      const cont = document.getElementById('listaDiario');
+      const fechaFiltro = document.getElementById('filtroFechaDiario').value;
+      const texto = document.getElementById('buscarDiario').value.trim().toLowerCase();
+
+      const fechasSet = new Set(diario.map(d => d.fecha));
+      Object.keys(notasDia).forEach(f => {
+        if (notasDia[f] && notasDia[f].trim()) fechasSet.add(f);
+      });
+
+      let listaFechas = Array.from(fechasSet).sort().reverse();
+
+      if (fechaFiltro) {
+        listaFechas = listaFechas.filter(f => f === fechaFiltro);
+      }
+
+      if (listaFechas.length === 0) {
+        cont.innerHTML = `<div class="card empty-state">No hay registros en el Diario con los filtros actuales.</div>`;
+        return;
+      }
+
+      let html = '';
+      listaFechas.forEach(fecha => {
+        let itemsFecha = diario.filter(d => d.fecha === fecha);
+        let notaCal = (notasDia[fecha] && notasDia[fecha].trim()) ? notasDia[fecha].trim() : '';
+
+        if (texto) {
+          itemsFecha = itemsFecha.filter(d =>
+            (d.texto && d.texto.toLowerCase().includes(texto)) ||
+            (d.tituloTarea && d.tituloTarea.toLowerCase().includes(texto))
+          );
+          const coincideNotaCal = notaCal.toLowerCase().includes(texto);
+          if (!coincideNotaCal) notaCal = '';
+          if (itemsFecha.length === 0 && !notaCal) return;
+        }
+
+        const obsManual = itemsFecha.find(d => d.tipo === 'manual');
+        const completadas = itemsFecha.filter(d => d.tipo === 'completada').sort((a, b) => (b.hora || '').localeCompare(a.hora || ''));
+
+        html += `
+          <div class="diary-day-card">
+            <div class="diary-day-header-bar">
+              <span>📅 ${formatearFechaES(fecha)}</span>
+              <button type="button" class="btn btn-outline btn-action" onclick="abrirModalAnadirObs('${fecha}')">➕ Añadir nota</button>
+            </div>
+        `;
+
+        if (notaCal) {
+          html += `
+            <div class="diary-cal-note-block">
+              <div style="font-weight:700; font-size:11px; color:var(--accent); margin-bottom:2px;">📝 Nota fija del calendario:</div>
+              <div style="white-space:pre-wrap;">${esc(notaCal)}</div>
+            </div>
+          `;
+        }
+
+        if (obsManual) {
+          html += `
+            <div class="diary-obs-block">
+              <div class="diary-obs-content">${esc(obsManual.texto)}</div>
+              <div style="display:flex; gap:4px; justify-content:flex-end;">
+                <button type="button" class="btn btn-outline btn-action" onclick="abrirModalAnadirObs('${fecha}')">➕ Añadir nota</button>
+                <button type="button" class="btn btn-outline btn-action" onclick="abrirModalEditarObs('${obsManual.id}')">✏️ Editar todo</button>
+                <button type="button" class="btn btn-outline btn-action" style="color:var(--red);" onclick="confirmarBorrarDiario('${obsManual.id}')">🗑️</button>
+              </div>
+            </div>
+          `;
+        }
+
+        if (completadas.length > 0) {
+          html += `<div class="diary-completed-title">TAREAS COMPLETADAS ESTE DÍA (${completadas.length}):</div>`;
+          completadas.forEach(c => {
+            html += `
+              <div class="diary-task-completed">
+                <div style="flex:1; min-width:0;">
+                  <div style="font-weight:700; font-size:12.5px;">✓ ${esc(c.tituloTarea)}</div>
+                  <div style="font-size:11.5px; white-space:pre-wrap; margin-top:1px;">${esc(c.texto)}</div>
+                </div>
+                <div style="display:flex; flex-direction:column; align-items:flex-end; gap:3px;">
+                  <span class="diary-time-badge">${esc(c.hora)}</span>
+                  <button type="button" class="btn btn-outline btn-action" style="min-height:30px; padding:2px 6px; font-size:11px;" onclick="abrirModalEditarObs('${c.id}')">✏️</button>
+                </div>
+              </div>
+            `;
+          });
+        }
+
+        html += `</div>`;
+      });
+
+      if (!html) {
+        cont.innerHTML = `<div class="card empty-state">No se encontraron observaciones ni tareas que coincidan con la búsqueda.</div>`;
+      } else {
+        cont.innerHTML = html;
+      }
+    }
+
+    function abrirModalAnadirObs(fechaPredefinida) {
+      const f = fechaPredefinida || obtenerFechaISOHoy();
+      document.getElementById('inputFechaAnadirObs').value = f;
+      document.getElementById('inputTextoNuevaObs').value = '';
+
+      const existente = diario.find(d => d.fecha === f && d.tipo === 'manual');
+      const boxPrevio = document.getElementById('previoObservacionesDia');
+      if (existente && existente.texto.trim()) {
+        boxPrevio.style.display = 'block';
+        boxPrevio.innerHTML = `<strong>Observaciones ya anotadas este día:</strong><br>${esc(existente.texto)}`;
+      } else {
+        boxPrevio.style.display = 'none';
+      }
+
+      document.getElementById('modalAnadirObsDiario').classList.add('open');
+    }
+
+    function abrirModalEditarObs(id) {
+      const reg = diario.find(d => d.id === id);
+      if (!reg) return;
+      document.getElementById('editObsId').value = reg.id;
+      document.getElementById('editObsFecha').value = reg.fecha;
+      document.getElementById('editObsTexto').value = reg.texto || '';
+      document.getElementById('modalEditarObsDiario').classList.add('open');
+    }
+
+    function confirmarBorrarDiario(id) {
+      pedirConfirmacion('Eliminar apunte del Diario', '¿Seguro que quieres eliminar esta anotación del Diario?', () => {
+        diario = diario.filter(x => x.id !== id);
+        guardarDiario();
+        renderizarTodo();
+        mostrarAviso('🗑️ Apunte del diario eliminado');
+      });
+    }
+
+    // 5. Histórico
+    function renderizarHistorico() {
+      const realizadas = tareas.filter(t => t.completada);
+      const pendientesCount = tareas.filter(t => !t.completada).length;
+
+      const hoy = new Date();
+      const mesActualPrefijo = `${hoy.getFullYear()}-${String(hoy.getMonth() + 1).padStart(2, '0')}`;
+      const hechasEsteMes = realizadas.filter(t => {
+        if (t.fechaCompletada) return t.fechaCompletada.startsWith(mesActualPrefijo);
+        return t.fecha && t.fecha.startsWith(mesActualPrefijo);
+      }).length;
+
+      document.getElementById('statTotalRealizadas').textContent = realizadas.length;
+      document.getElementById('statEsteMes').textContent = hechasEsteMes;
+      document.getElementById('statPendientesCount').textContent = pendientesCount;
+
+      const texto = document.getElementById('buscarHistorico').value.trim().toLowerCase();
+      const relFiltro = document.getElementById('filtroRelHistorico').value;
+
+      let filtradas = realizadas.slice();
+      if (relFiltro !== 'todas') filtradas = filtradas.filter(t => t.relevancia === relFiltro);
+      if (texto) {
+        filtradas = filtradas.filter(t =>
+          (t.titulo && t.titulo.toLowerCase().includes(texto)) ||
+          (t.notas && t.notas.toLowerCase().includes(texto)) ||
+          (t.notaCierre && t.notaCierre.toLowerCase().includes(texto))
+        );
+      }
+
+      filtradas.sort((a, b) => {
+        const fA = a.fechaCompletada || a.fecha || '';
+        const fB = b.fechaCompletada || b.fecha || '';
+        return fB.localeCompare(fA);
+      });
+
+      const contadorHist = document.getElementById('contadorHistorico');
+      if (contadorHist) {
+        contadorHist.textContent = `Mostrando ${filtradas.length} de ${realizadas.length} realizadas`;
+      }
+
+      const cont = document.getElementById('listaHistorico');
+      if (filtradas.length === 0) {
+        cont.innerHTML = `<div class="card empty-state">No hay tareas realizadas con estos filtros.</div>`;
+        return;
+      }
+
+      cont.innerHTML = filtradas.map(t => crearHTMLTarjetaTarea(t)).join('');
+    }
+
+    // Gestión de tareas
+    function abrirModalNuevaTarea(fechaPredefinida) {
+      document.getElementById('tituloModalTarea').textContent = 'Nueva tarea o aviso';
+      document.getElementById('tareaId').value = '';
+      document.getElementById('tareaTitulo').value = '';
+      document.getElementById('tareaTipo').value = 'tarea';
+      document.getElementById('tareaRelevancia').value = 'media';
+      document.getElementById('tareaFecha').value = fechaPredefinida || obtenerFechaISOHoy();
+      document.getElementById('tareaHora').value = '';
+      document.getElementById('tareaRepeticion').value = 'ninguna';
+      document.getElementById('tareaNotas').value = '';
+      document.getElementById('modalTarea').classList.add('open');
+    }
+
+    function abrirModalEditar(id) {
+      const t = tareas.find(x => x.id === id);
+      if (!t) return;
+      document.getElementById('tituloModalTarea').textContent = 'Editar tarea o aviso';
+      document.getElementById('tareaId').value = t.id;
+      document.getElementById('tareaTitulo').value = t.titulo;
+      document.getElementById('tareaTipo').value = t.tipo || 'tarea';
+      document.getElementById('tareaRelevancia').value = t.relevancia || 'media';
+      document.getElementById('tareaFecha').value = t.fecha || obtenerFechaISOHoy();
+      document.getElementById('tareaHora').value = t.hora || '';
+      document.getElementById('tareaRepeticion').value = t.repeticion || 'ninguna';
+      document.getElementById('tareaNotas').value = t.notas || '';
+      document.getElementById('modalTarea').classList.add('open');
+    }
+
+    function abrirModalCompletar(id) {
+      const t = tareas.find(x => x.id === id);
+      if (!t) return;
+      idTareaACompletar = id;
+      document.getElementById('textoTareaACompletar').textContent = t.titulo;
+      document.getElementById('notaCierreInput').value = t.notaCierre || '';
+
+      const boxRep = document.getElementById('infoRepeticionCompletar');
+      const chkSiguiente = document.getElementById('chkProgramarSiguiente');
+      const txtSiguiente = document.getElementById('textoSiguienteRepeticion');
+
+      if (t.repeticion && t.repeticion !== 'ninguna') {
+        const sigFecha = calcularSiguienteFecha(t.fecha, t.repeticion);
+        const nombreFrecuencia = t.repeticion === 'semanal' ? 'semanal' : (t.repeticion === 'mensual' ? 'mensual' : 'anual');
+        txtSiguiente.innerHTML = `🔁 <strong>Tarea ${nombreFrecuencia}:</strong> se registrará en el Diario y en el Histórico, programando la próxima para el <strong>${formatearFechaES(sigFecha)}</strong>.`;
+        chkSiguiente.checked = true;
+        boxRep.style.display = 'block';
+      } else {
+        boxRep.style.display = 'none';
+      }
+
+      document.getElementById('modalCompletar').classList.add('open');
+    }
+
+    function confirmarCompletarTarea() {
+      if (!idTareaACompletar) return;
+      const t = tareas.find(x => x.id === idTareaACompletar);
+      if (t) {
+        const ahoraISO = new Date().toISOString();
+        const hoyStr = obtenerFechaISOHoy();
+        const horaStr = obtenerHoraActualHHMM();
+        const notaCierre = document.getElementById('notaCierreInput').value.trim();
+        const esRepetitiva = t.repeticion && t.repeticion !== 'ninguna';
+        const programarSiguiente = document.getElementById('chkProgramarSiguiente').checked;
+
+        let detalleCierre = `Finalizada a las ${horaStr} (prevista para el ${formatearFechaES(t.fecha)}).`;
+        if (notaCierre) detalleCierre += `\nObservación de cierre: ${notaCierre}`;
+        else if (t.notas) detalleCierre += `\nDetalles: ${t.notas}`;
+
+        diario.push({
+          id: 'd-' + Date.now() + '-' + Math.random().toString(36).slice(2, 6),
+          fecha: hoyStr,
+          hora: horaStr,
+          fechaHoraISO: ahoraISO,
+          tipo: 'completada',
+          tareaId: t.id,
+          tituloTarea: t.titulo,
+          texto: detalleCierre
+        });
+        guardarDiario();
+
+        if (esRepetitiva && programarSiguiente) {
+          tareas.push({
+            id: 'hist-' + Date.now() + '-' + Math.random().toString(36).slice(2, 6),
+            titulo: t.titulo,
+            tipo: t.tipo,
+            relevancia: t.relevancia,
+            repeticion: t.repeticion,
+            fecha: t.fecha,
+            hora: t.hora,
+            notas: t.notas,
+            completada: true,
+            traspasado: t.traspasado || false,
+            fechaCreacion: t.fechaCreacion,
+            fechaCompletada: ahoraISO,
+            notaCierre: notaCierre
+          });
+
+          const nuevaFecha = calcularSiguienteFecha(t.fecha, t.repeticion);
+          t.fecha = nuevaFecha;
+          t.notaCierre = '';
+          t.traspasado = false;
+          guardarTareas();
+          renderizarTodo();
+          mostrarAviso(`✅ Registrada en Diario. Próxima: ${formatearFechaES(nuevaFecha)}`);
+        } else {
+          t.completada = true;
+          t.fechaCompletada = ahoraISO;
+          t.notaCierre = notaCierre;
+          guardarTareas();
+          renderizarTodo();
+          mostrarAviso('✅ Tarea completada y registrada en el Diario');
+        }
+      }
+      idTareaACompletar = null;
+      document.getElementById('modalCompletar').classList.remove('open');
+    }
+
+    function reabrirTarea(id) {
+      const t = tareas.find(x => x.id === id);
+      if (!t) return;
+      t.completada = false;
+      t.fechaCompletada = null;
+      guardarTareas();
+      renderizarTodo();
+      mostrarAviso('↩️ Devuelta a pendientes');
+    }
+
+    function confirmarBorrarTarea(id) {
+      const t = tareas.find(x => x.id === id);
+      if (!t) return;
+      pedirConfirmacion('Eliminar tarea', `¿Seguro que quieres eliminar "${t.titulo}"?`, () => {
+        tareas = tareas.filter(x => x.id !== id);
+        guardarTareas();
+        renderizarTodo();
+        mostrarAviso('🗑️ Tarea eliminada');
+      });
+    }
+
+    // 6. Exportación a Excel nativa 100% OFFLINE (SpreadsheetML XML multihoja)
+    function escaparXML(val) {
+      return String(val == null ? '' : val)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&apos;');
+    }
+
+    function construirHojaXML(nombreHoja, cabeceras, filas, anchosCol) {
+      const colsXML = (anchosCol || []).map(w => `<Column ss:AutoFitWidth="0" ss:Width="${w}"/>`).join('');
+      const headerCells = cabeceras.map(c => `<Cell ss:StyleID="sHeader"><Data ss:Type="String">${escaparXML(c)}</Data></Cell>`).join('');
+      const rowsXML = filas.map(fila => {
+        const celdas = fila.map(valor => `<Cell ss:StyleID="sCell"><Data ss:Type="String">${escaparXML(valor)}</Data></Cell>`).join('');
+        return `<Row>${celdas}</Row>`;
+      }).join('\n');
+
+      return `
+  <Worksheet ss:Name="${escaparXML(nombreHoja)}">
+    <Table>
+      ${colsXML}
+      <Row ss:Height="22">${headerCells}</Row>
+      ${rowsXML}
+    </Table>
+  </Worksheet>`;
+    }
+
+    function generarLibroExcelXML(hojas) {
+      const worksheetsXML = hojas.map(h => construirHojaXML(h.nombre, h.cabeceras, h.filas, h.anchos)).join('\n');
+      return `<?xml version="1.0" encoding="UTF-8"?>
+<?mso-application progid="Excel.Sheet"?>
+<Workbook xmlns="urn:schemas-microsoft-com:office:spreadsheet"
+ xmlns:o="urn:schemas-microsoft-com:office:office"
+ xmlns:x="urn:schemas-microsoft-com:office:excel"
+ xmlns:ss="urn:schemas-microsoft-com:office:spreadsheet">
+ <Styles>
+  <Style ss:ID="Default" ss:Name="Normal">
+   <Alignment ss:Vertical="Top" ss:WrapText="1"/>
+   <Font ss:FontName="Calibri" ss:Size="11"/>
+  </Style>
+  <Style ss:ID="sHeader">
+   <Alignment ss:Vertical="Center" ss:WrapText="1"/>
+   <Font ss:FontName="Calibri" ss:Size="11" ss:Bold="1" ss:Color="#FFFFFF"/>
+   <Interior ss:Color="#0F2742" ss:Pattern="Solid"/>
+  </Style>
+  <Style ss:ID="sCell">
+   <Alignment ss:Vertical="Top" ss:WrapText="1"/>
+  </Style>
+ </Styles>
+${worksheetsXML}
+</Workbook>`;
+    }
+
+    function actualizarTextoRutaDisplay(carpeta) {
+      const c = (carpeta || 'tareas').replace(/^\/+|\/+$/g, '');
+      document.getElementById('textoRutaDestinoActual').textContent = `/Download/${c}/`;
+    }
+
+    function abrirModalExportarExcel() {
+      const selectCarpeta = document.getElementById('selectCarpetaExcel');
+      const grupoCustom = document.getElementById('grupoCarpetaPersonalizada');
+      const inputCustom = document.getElementById('inputCarpetaPersonalizada');
+      const panelSelector = document.getElementById('panelSelectorUbicacion');
+
+      panelSelector.style.display = 'none';
+      const carpetaGuardada = config.carpetaExcel || 'tareas';
+      actualizarTextoRutaDisplay(carpetaGuardada);
+
+      const opcionesPredefinidas = ['tareas', 'Tareas y Avisos', 'agenda', 'documentos'];
+      if (opcionesPredefinidas.includes(carpetaGuardada)) {
+        selectCarpeta.value = carpetaGuardada;
+        grupoCustom.style.display = 'none';
+      } else {
+        selectCarpeta.value = '__custom__';
+        grupoCustom.style.display = 'block';
+        inputCustom.value = carpetaGuardada;
+      }
+
+      document.getElementById('inputNombreArchivoExcel').value = `informe_tareas_diario_${obtenerFechaISOHoy()}.xls`;
+      document.getElementById('modalExportarExcel').classList.add('open');
+    }
+
+    function ejecutarExportacionExcel(e) {
+      e.preventDefault();
+      const selectCarpeta = document.getElementById('selectCarpetaExcel').value;
+      let carpetaDestino = selectCarpeta;
+      if (selectCarpeta === '__custom__') {
+        carpetaDestino = document.getElementById('inputCarpetaPersonalizada').value.trim() || 'tareas';
+      }
+
+      config.carpetaExcel = carpetaDestino;
+      guardarConfig();
+
+      let nombreArchivo = document.getElementById('inputNombreArchivoExcel').value.trim() || `informe_tareas_diario_${obtenerFechaISOHoy()}.xls`;
+      if (!/\.(xls|xlsx)$/i.test(nombreArchivo)) {
+        nombreArchivo += '.xls';
+      }
+
+      const cabecerasTareas = [
+        'ID', 'Nombre', 'Tipo', 'Descripción', 'Fecha creación',
+        'Estado', 'Traspasado a Google', 'Fecha de finalización',
+        'Relevancia', 'Fecha prevista'
+      ];
+
+      const filasTareas = tareas.length ? tareas.map(t => [
+        t.id || '',
+        t.titulo || '',
+        t.tipo === 'aviso' ? 'Aviso' : 'Tarea',
+        t.notas || '',
+        t.fechaCreacion ? formatearFechaHoraES(t.fechaCreacion) : '',
+        t.completada ? 'Completada' : 'Pendiente',
+        t.traspasado ? 'Sí' : 'No',
+        t.fechaCompletada ? formatearFechaHoraES(t.fechaCompletada) : '',
+        (t.relevancia || 'media').toUpperCase(),
+        formatearFechaES(t.fecha) + (t.hora ? ' ' + t.hora : '')
+      ]) : [['', 'Sin tareas registradas', '', '', '', '', '', '', '', '']];
+
+      const diarioOrdenado = diario.slice().sort((a, b) => {
+        const fA = (a.fecha || '') + ' ' + (a.hora || '');
+        const fB = (b.fecha || '') + ' ' + (b.hora || '');
+        return fB.localeCompare(fA);
+      });
+
+      const cabecerasDiario = [
+        'Fecha', 'Hora', 'Tipo de Registro', 'Tareas vinculadas', 'Observaciones/Notas'
+      ];
+
+      const filasDiario = diarioOrdenado.length ? diarioOrdenado.map(d => [
+        formatearFechaES(d.fecha),
+        d.hora || '',
+        d.tipo === 'completada' ? 'Tarea completada' : 'Observación manual',
+        d.tituloTarea || '',
+        d.texto || ''
+      ]) : [['', '', 'Sin observaciones en el diario', '', '']];
+
+      const xmlExcel = generarLibroExcelXML([
+        {
+          nombre: 'Tareas',
+          cabeceras: cabecerasTareas,
+          filas: filasTareas,
+          anchos: [110, 200, 75, 230, 115, 90, 110, 115, 80, 115]
+        },
+        {
+          nombre: 'Agenda y Diario',
+          cabeceras: cabecerasDiario,
+          filas: filasDiario,
+          anchos: [90, 65, 130, 200, 320]
+        }
+      ]);
+
+      const res = guardarArchivo(nombreArchivo, xmlExcel, carpetaDestino);
+      document.getElementById('modalExportarExcel').classList.remove('open');
+      mostrarAviso(`📊 ${res}`);
+    }
+
+    // Exportar Backup JSON
+    function exportarCopiaSeguridadJSON() {
+      const ahora = new Date().toISOString();
+      config.ultimoBackup = ahora;
+      guardarConfig();
+
+      const payload = {
+        app: 'es.manuel.tareasyavisos',
+        version: 9,
+        fechaExportacion: ahora,
+        tareas,
+        notasDia,
+        diario,
+        config
+      };
+      const nombre = `copia_tareasyavisos_${obtenerFechaISOHoy()}.json`;
+      const res = guardarArchivo(nombre, JSON.stringify(payload, null, 2), config.carpetaExcel || 'tareas');
+      renderizarAvisoBackup();
+      actualizarInfoBackupAjustes();
+      mostrarAviso(res);
+    }
+
+    function actualizarInfoBackupAjustes() {
+      const el = document.getElementById('textoUltimoBackup');
+      if (!el) return;
+      if (!config.ultimoBackup) {
+        el.textContent = 'Última copia de seguridad: Nunca realizada';
+      } else {
+        el.textContent = `Última copia de seguridad: ${formatearFechaHoraES(config.ultimoBackup)}`;
+      }
+    }
+
+    // Navegación
+    function navegarAPantalla(nombre) {
+      const pantallas = ['pendientes', 'calendario', 'diario', 'historico', 'ajustes'];
+      const destino = pantallas.includes(nombre) ? nombre : 'pendientes';
+
+      document.querySelectorAll('.screen').forEach(el => el.classList.remove('active'));
+      const targetEl = document.getElementById('screen-' + destino);
+      if (targetEl) targetEl.classList.add('active');
+
+      document.querySelectorAll('.nav-item').forEach(btn => {
+        btn.classList.toggle('active', btn.getAttribute('data-target') === destino);
+      });
+
+      renderizarTodo();
+    }
+
+    function sincronizarSelectoresAjustes() {
+      document.getElementById('cfgTema').value = config.tema || 'sistema';
+      document.getElementById('cfgVistaDefecto').value = config.vistaDefecto || 'mes';
+      document.getElementById('cfgDiasPreaviso').value = String(config.diasPreaviso || 3);
+      document.getElementById('cfgMostrarRealizadasCal').value = config.mostrarRealizadasCal || 'si';
+      actualizarInfoBackupAjustes();
+    }
+
+    function actualizarBotonesVistaCalendario() {
+      document.getElementById('btnVistaMes').classList.toggle('active', vistaCalActual === 'mes');
+      document.getElementById('btnVistaSemana').classList.toggle('active', vistaCalActual === 'semana');
+      document.getElementById('btnVistaAgenda').classList.toggle('active', vistaCalActual === 'agenda');
+    }
+
+    // Inicialización de eventos
+    window.addEventListener('DOMContentLoaded', () => {
+      cargarDatos();
+
+      window.addEventListener('hashchange', () => {
+        const hash = location.hash.replace('#', '') || 'pendientes';
+        navegarAPantalla(hash);
+      });
+
+      document.querySelectorAll('.nav-item').forEach(btn => {
+        btn.addEventListener('click', () => {
+          const destino = btn.getAttribute('data-target');
+          location.hash = destino;
+        });
+      });
+
+      const hashInicial = location.hash.replace('#', '') || 'pendientes';
+      navegarAPantalla(hashInicial);
+
+      // Cerrar cualquier modal al pulsar fuera de su tarjeta
+      document.querySelectorAll('.modal-backdrop').forEach(backdrop => {
+        backdrop.addEventListener('click', (e) => {
+          if (e.target === backdrop) {
+            backdrop.classList.remove('open');
+          }
+        });
+      });
+
+      // Desplegar/ocultar filtros y ordenación en Pendientes
+      document.getElementById('btnToggleFiltrosPendientes').addEventListener('click', () => {
+        const panel = document.getElementById('panelFiltrosPendientes');
+        panel.classList.toggle('open');
+        actualizarEstadoBotonFiltros();
+      });
+
+      // Restablecer filtros y orden en Pendientes
+      document.getElementById('btnRestablecerFiltros').addEventListener('click', () => {
+        document.getElementById('filtroRelevancia').value = 'todas';
+        document.getElementById('filtroTipo').value = 'todos';
+        document.getElementById('filtroRepeticion').value = 'todas';
+        document.getElementById('ordenPendientes').value = 'fecha';
+        document.getElementById('buscarPendientes').value = '';
+        renderizarPendientes();
+        mostrarAviso('↺ Filtros y orden restablecidos');
+      });
+
+      // Botones cabecera y accesos rápidos
+      document.getElementById('btnNuevaTareaCabecera').addEventListener('click', () => {
+        abrirModalNuevaTarea(obtenerFechaISOHoy());
+      });
+
+      document.getElementById('btnAnadirEnDia').addEventListener('click', () => {
+        abrirModalNuevaTarea(fechaSeleccionadaStr);
+      });
+
+      document.getElementById('btnAnadirObsEnDia').addEventListener('click', () => {
+        abrirModalAnadirObs(fechaSeleccionadaStr);
+      });
+
+      document.getElementById('btnNuevaObservacion').addEventListener('click', () => {
+        const filtroF = document.getElementById('filtroFechaDiario').value;
+        abrirModalAnadirObs(filtroF || obtenerFechaISOHoy());
+      });
+
+      // Exportar Excel
+      document.getElementById('btnExportarExcelCabecera').addEventListener('click', abrirModalExportarExcel);
+      document.getElementById('btnExportarExcelHistorico').addEventListener('click', abrirModalExportarExcel);
+      document.getElementById('btnExportarExcelAjustes').addEventListener('click', abrirModalExportarExcel);
+
+      document.getElementById('btnAlternarSelectorUbicacion').addEventListener('click', () => {
+        const panel = document.getElementById('panelSelectorUbicacion');
+        const visible = panel.style.display !== 'none';
+        panel.style.display = visible ? 'none' : 'block';
+      });
+
+      document.getElementById('selectCarpetaExcel').addEventListener('change', (e) => {
+        const val = e.target.value;
+        const esCustom = val === '__custom__';
+        document.getElementById('grupoCarpetaPersonalizada').style.display = esCustom ? 'block' : 'none';
+        if (!esCustom) {
+          actualizarTextoRutaDisplay(val);
+        } else {
+          actualizarTextoRutaDisplay(document.getElementById('inputCarpetaPersonalizada').value || 'tareas');
+        }
+      });
+
+      document.getElementById('inputCarpetaPersonalizada').addEventListener('input', (e) => {
+        actualizarTextoRutaDisplay(e.target.value || 'tareas');
+      });
+
+      document.getElementById('btnCerrarModalExcel').addEventListener('click', () => {
+        document.getElementById('modalExportarExcel').classList.remove('open');
+      });
+      document.getElementById('btnCancelarExcel').addEventListener('click', () => {
+        document.getElementById('modalExportarExcel').classList.remove('open');
+      });
+      document.getElementById('formExportarExcel').addEventListener('submit', ejecutarExportacionExcel);
+
+      // Cierres modales
+      document.getElementById('btnCerrarModalTarea').addEventListener('click', () => {
+        document.getElementById('modalTarea').classList.remove('open');
+      });
+      document.getElementById('btnCancelarTarea').addEventListener('click', () => {
+        document.getElementById('modalTarea').classList.remove('open');
+      });
+
+      document.getElementById('btnCerrarModalCompletar').addEventListener('click', () => {
+        document.getElementById('modalCompletar').classList.remove('open');
+      });
+      document.getElementById('btnCancelarCompletar').addEventListener('click', () => {
+        document.getElementById('modalCompletar').classList.remove('open');
+      });
+      document.getElementById('btnConfirmarCompletar').addEventListener('click', confirmarCompletarTarea);
+
+      document.getElementById('btnCerrarModalAnadirObs').addEventListener('click', () => {
+        document.getElementById('modalAnadirObsDiario').classList.remove('open');
+      });
+      document.getElementById('btnCancelarAnadirObs').addEventListener('click', () => {
+        document.getElementById('modalAnadirObsDiario').classList.remove('open');
+      });
+
+      document.getElementById('btnCerrarModalEditarObs').addEventListener('click', () => {
+        document.getElementById('modalEditarObsDiario').classList.remove('open');
+      });
+      document.getElementById('btnCancelarEditarObs').addEventListener('click', () => {
+        document.getElementById('modalEditarObsDiario').classList.remove('open');
+      });
+
+      document.getElementById('btnConfirmarNo').addEventListener('click', () => {
+        document.getElementById('modalConfirmar').classList.remove('open');
+      });
+      document.getElementById('btnConfirmarSi').addEventListener('click', () => {
+        document.getElementById('modalConfirmar').classList.remove('open');
+        if (typeof accionConfirmarCallback === 'function') accionConfirmarCallback();
+      });
+
+      // Guardar tarea
+      document.getElementById('formTarea').addEventListener('submit', (e) => {
+        e.preventDefault();
+        const id = document.getElementById('tareaId').value;
+        const titulo = document.getElementById('tareaTitulo').value.trim();
+        if (!titulo) return;
+
+        const tipo = document.getElementById('tareaTipo').value;
+        const relevancia = document.getElementById('tareaRelevancia').value;
+        const fecha = document.getElementById('tareaFecha').value;
+        const hora = document.getElementById('tareaHora').value;
+        const repeticion = document.getElementById('tareaRepeticion').value;
+        const notas = document.getElementById('tareaNotas').value.trim();
+
+        if (id) {
+          const existente = tareas.find(x => x.id === id);
+          if (existente) {
+            existente.titulo = titulo;
+            existente.tipo = tipo;
+            existente.relevancia = relevancia;
+            existente.fecha = fecha;
+            existente.hora = hora;
+            existente.repeticion = repeticion;
+            existente.notas = notas;
+          }
+          guardarTareas();
+          mostrarAviso('💾 Registro actualizado');
+        } else {
+          const nuevoId = 't-' + Date.now() + '-' + Math.random().toString(36).slice(2, 6);
+          tareas.push({
+            id: nuevoId,
+            titulo,
+            tipo,
+            relevancia,
+            repeticion,
+            fecha,
+            hora,
+            notas,
+            completada: false,
+            traspasado: false,
+            fechaCreacion: new Date().toISOString(),
+            fechaCompletada: null,
+            notaCierre: ''
+          });
+          guardarTareas();
+          mostrarAviso('💾 Guardado correctamente');
+        }
+
+        document.getElementById('modalTarea').classList.remove('open');
+        renderizarTodo();
+      });
+
+      // Guardar observación acumulativa al Diario
+      document.getElementById('formAnadirObsDiario').addEventListener('submit', (e) => {
+        e.preventDefault();
+        const fecha = document.getElementById('inputFechaAnadirObs').value;
+        const textoNuevo = document.getElementById('inputTextoNuevaObs').value.trim();
+        if (!textoNuevo) return;
+
+        const horaAhora = obtenerHoraActualHHMM();
+        const lineaConHora = `[${horaAhora}] ${textoNuevo}`;
+
+        let registroExistente = diario.find(d => d.fecha === fecha && d.tipo === 'manual');
+
+        if (registroExistente) {
+          if (registroExistente.texto && registroExistente.texto.trim()) {
+            registroExistente.texto += `\n${lineaConHora}`;
+          } else {
+            registroExistente.texto = lineaConHora;
+          }
+          registroExistente.hora = horaAhora;
+        } else {
+          diario.push({
+            id: 'd-' + Date.now() + '-' + Math.random().toString(36).slice(2, 6),
+            fecha: fecha,
+            hora: horaAhora,
+            fechaHoraISO: new Date().toISOString(),
+            tipo: 'manual',
+            tareaId: null,
+            tituloTarea: '',
+            texto: lineaConHora
+          });
+        }
+
+        guardarDiario();
+        document.getElementById('modalAnadirObsDiario').classList.remove('open');
+        renderizarTodo();
+        mostrarAviso('📖 Observación añadida con éxito');
+      });
+
+      // Guardar edición de observación completa del día
+      document.getElementById('formEditarObsDiario').addEventListener('submit', (e) => {
+        e.preventDefault();
+        const id = document.getElementById('editObsId').value;
+        const fecha = document.getElementById('editObsFecha').value;
+        const texto = document.getElementById('editObsTexto').value.trim();
+
+        const reg = diario.find(d => d.id === id);
+        if (reg) {
+          reg.fecha = fecha;
+          reg.texto = texto;
+          guardarDiario();
+          mostrarAviso('✏️ Observaciones del día actualizadas');
+        }
+
+        document.getElementById('modalEditarObsDiario').classList.remove('open');
+        renderizarTodo();
+      });
+
+      // Filtros
+      ['filtroRelevancia', 'filtroTipo', 'filtroRepeticion', 'ordenPendientes'].forEach(id => {
+        document.getElementById(id).addEventListener('change', renderizarPendientes);
+      });
+      document.getElementById('buscarPendientes').addEventListener('input', renderizarPendientes);
+
+      document.getElementById('filtroFechaDiario').addEventListener('change', renderizarDiario);
+      document.getElementById('buscarDiario').addEventListener('input', renderizarDiario);
+      document.getElementById('btnVerTodoDiario').addEventListener('click', () => {
+        document.getElementById('filtroFechaDiario').value = '';
+        document.getElementById('buscarDiario').value = '';
+        renderizarDiario();
+      });
+
+      // Calendario
+      document.getElementById('btnVistaMes').addEventListener('click', () => {
+        vistaCalActual = 'mes';
+        actualizarBotonesVistaCalendario();
+        renderizarCalendario();
+      });
+      document.getElementById('btnVistaSemana').addEventListener('click', () => {
+        vistaCalActual = 'semana';
+        actualizarBotonesVistaCalendario();
+        renderizarCalendario();
+      });
+      document.getElementById('btnVistaAgenda').addEventListener('click', () => {
+        vistaCalActual = 'agenda';
+        actualizarBotonesVistaCalendario();
+        renderizarCalendario();
+      });
+
+      document.getElementById('btnCalPrev').addEventListener('click', () => {
+        if (vistaCalActual === 'mes') fechaCursorCal.setMonth(fechaCursorCal.getMonth() - 1);
+        else fechaCursorCal.setDate(fechaCursorCal.getDate() - 7);
+        renderizarCalendario();
+      });
+
+      document.getElementById('btnCalNext').addEventListener('click', () => {
+        if (vistaCalActual === 'mes') fechaCursorCal.setMonth(fechaCursorCal.getMonth() + 1);
+        else fechaCursorCal.setDate(fechaCursorCal.getDate() + 7);
+        renderizarCalendario();
+      });
+
+      document.getElementById('btnCalHoy').addEventListener('click', () => {
+        fechaCursorCal = new Date();
+        fechaSeleccionadaStr = obtenerFechaISOHoy();
+        renderizarCalendario();
+        renderizarDetalleDia(fechaSeleccionadaStr);
+      });
+
+      document.getElementById('notaRapidaDia').addEventListener('input', (e) => {
+        const val = e.target.value;
+        if (val.trim()) notasDia[fechaSeleccionadaStr] = val;
+        else delete notasDia[fechaSeleccionadaStr];
+        guardarNotasDia();
+        renderizarCalendario();
+      });
+
+      document.getElementById('buscarHistorico').addEventListener('input', renderizarHistorico);
+      document.getElementById('filtroRelHistorico').addEventListener('change', renderizarHistorico);
+
+      document.getElementById('btnLimpiarHistorico').addEventListener('click', () => {
+        const realizadasCount = tareas.filter(t => t.completada).length;
+        if (realizadasCount === 0) {
+          mostrarAviso('El histórico ya está vacío');
+          return;
+        }
+        pedirConfirmacion('Vaciar histórico', `¿Seguro que quieres borrar las ${realizadasCount} tareas realizadas? Las tareas pendientes y las observaciones del Diario no se eliminarán.`, () => {
+          tareas = tareas.filter(t => !t.completada);
+          guardarTareas();
+          renderizarTodo();
+          mostrarAviso('🗑️ Histórico vaciado');
+        });
+      });
+
+      // Ajustes
+      document.getElementById('cfgTema').addEventListener('change', (e) => {
+        config.tema = e.target.value;
+        aplicarTemaVisual(config.tema);
+        guardarConfig();
+        mostrarAviso('Tema actualizado');
+      });
+
+      document.getElementById('cfgVistaDefecto').addEventListener('change', (e) => {
+        config.vistaDefecto = e.target.value;
+        vistaCalActual = config.vistaDefecto;
+        guardarConfig();
+        actualizarBotonesVistaCalendario();
+        renderizarCalendario();
+        mostrarAviso('Preferencia guardada');
+      });
+
+      document.getElementById('cfgDiasPreaviso').addEventListener('change', (e) => {
+        config.diasPreaviso = parseInt(e.target.value, 10) || 3;
+        guardarConfig();
+        renderizarAvisosUrgentes();
+        mostrarAviso('Preferencia guardada');
+      });
+
+      document.getElementById('cfgMostrarRealizadasCal').addEventListener('change', (e) => {
+        config.mostrarRealizadasCal = e.target.value;
+        guardarConfig();
+        renderizarCalendario();
+        mostrarAviso('Preferencia guardada');
+      });
+
+      // Backup JSON
+      document.getElementById('btnExportarBackup').addEventListener('click', exportarCopiaSeguridadJSON);
+
+      document.getElementById('inputRestaurarBackup').addEventListener('change', (e) => {
+        const archivo = e.target.files && e.target.files[0];
+        if (!archivo) return;
+        const lector = new FileReader();
+        lector.onload = (ev) => {
+          try {
+            const datos = JSON.parse(ev.target.result);
+            if (!Array.isArray(datos.tareas)) {
+              mostrarAviso('❌ El archivo no tiene un formato válido');
+              return;
+            }
+            pedirConfirmacion('Restaurar copia de seguridad', `Se cargarán ${datos.tareas.length} tareas, ${(datos.diario || []).length} apuntes del diario y las notas del calendario, reemplazando los datos actuales. ¿Deseas continuar?`, () => {
+              tareas = datos.tareas.map(t => Object.assign({ repeticion: 'ninguna', traspasado: false }, t));
+              notasDia = datos.notasDia || {};
+              diario = Array.isArray(datos.diario) ? datos.diario.filter(d => d.tipo !== 'creacion') : [];
+              if (datos.config) config = Object.assign(config, datos.config);
+              aplicarTemaVisual(config.tema || 'sistema');
+              guardarTareas();
+              guardarNotasDia();
+              guardarDiario();
+              guardarConfig();
+              sincronizarSelectoresAjustes();
+              renderizarTodo();
+              mostrarAviso('✅ Copia de seguridad restaurada con éxito');
+            });
+          } catch (err) {
+            mostrarAviso('❌ Error al procesar el archivo JSON');
+          }
+        };
+        lector.readAsText(archivo);
+        e.target.value = '';
+      });
+
+      document.getElementById('btnCargarEjemplos').addEventListener('click', () => {
+        cargarEjemplosIniciales(false);
+      });
+    });
+  </script>
+</body>
+</html>

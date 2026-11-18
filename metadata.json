@@ -1,0 +1,6 @@
+{
+  "name": "Tareas",
+  "description": "Gestor offline de tareas diarias, avisos prioritarios, calendario configurable, diario personal, histórico, exportación a Excel y notificaciones locales.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

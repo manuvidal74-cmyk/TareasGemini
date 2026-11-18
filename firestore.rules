@@ -1,0 +1,167 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // Global safety net: deny everything by default
+    match /{document=**} {
+      allow read, write: if false;
+    }
+
+    // Reusable primitives
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    function isOwner(userId) {
+      return isSignedIn() && request.auth.uid == userId;
+    }
+
+    function isValidId(id) {
+      return id is string && id.size() >= 1 && id.size() <= 128 && id.matches('^[a-zA-Z0-9_\\-]+$');
+    }
+
+    function incoming() {
+      return request.resource.data;
+    }
+
+    function existing() {
+      return resource.data;
+    }
+
+    function isValidTask(data, userId) {
+      return data.userId is string && data.userId == userId &&
+             data.titulo is string && data.titulo.size() >= 1 && data.titulo.size() <= 300 &&
+             data.tipo is string && data.tipo in ['tarea', 'aviso'] &&
+             data.relevancia is string && data.relevancia in ['alta', 'media', 'baja'] &&
+             data.repeticion is string && data.repeticion in ['ninguna', 'diaria', 'semanal', 'mensual', 'anual'] &&
+             data.fecha is string && data.fecha.size() <= 20 &&
+             data.hora is string && data.hora.size() <= 10 &&
+             data.notas is string && data.notas.size() <= 10000 &&
+             data.completada is bool &&
+             data.traspasado is bool &&
+             data.fechaCreacion is string && data.fechaCreacion.size() <= 64 &&
+             data.fechaCompletada is string && data.fechaCompletada.size() <= 64 &&
+             data.notaCierre is string && data.notaCierre.size() <= 4000 &&
+             data.notificacionActiva is bool &&
+             data.minutosAntes is int && data.minutosAntes >= 0 && data.minutosAntes <= 10080 &&
+             data.rachaDiaria is int && data.rachaDiaria >= 0 && data.rachaDiaria <= 100000 &&
+             data.ultimaFechaCompletadaDiaria is string && data.ultimaFechaCompletadaDiaria.size() <= 20 &&
+             data.categoria is string && data.categoria.size() <= 60 &&
+             data.diasSemana is string && data.diasSemana.size() <= 30 &&
+             data.createdAt is timestamp && data.createdAt <= request.time &&
+             data.updatedAt is timestamp && data.updatedAt <= request.time;
+    }
+
+    function isValidDailyNote(data, userId) {
+      return data.userId is string && data.userId == userId &&
+             data.fecha is string && data.fecha.size() >= 1 && data.fecha.size() <= 20 &&
+             data.texto is string && data.texto.size() <= 20000 &&
+             data.createdAt is timestamp && data.createdAt <= request.time &&
+             data.updatedAt is timestamp && data.updatedAt <= request.time;
+    }
+
+    function isValidDiaryEntry(data, userId) {
+      return data.userId is string && data.userId == userId &&
+             data.fecha is string && data.fecha.size() >= 1 && data.fecha.size() <= 20 &&
+             data.hora is string && data.hora.size() <= 10 &&
+             data.fechaHoraISO is string && data.fechaHoraISO.size() <= 64 &&
+             data.tipo is string && data.tipo in ['manual', 'completada'] &&
+             data.tareaId is string && data.tareaId.size() <= 128 &&
+             data.tituloTarea is string && data.tituloTarea.size() <= 300 &&
+             data.texto is string && data.texto.size() <= 20000 &&
+             data.createdAt is timestamp && data.createdAt <= request.time &&
+             data.updatedAt is timestamp && data.updatedAt <= request.time;
+    }
+
+    match /users/{userId}/tasks/{taskId} {
+      allow list: if isOwner(userId);
+      allow get: if isOwner(userId) && isValidId(taskId);
+
+      allow create: if isOwner(userId) &&
+                       isValidId(taskId) &&
+                       incoming().keys().hasAll([
+                         'userId', 'titulo', 'tipo', 'relevancia', 'repeticion',
+                         'fecha', 'hora', 'notas', 'completada', 'traspasado',
+                         'fechaCreacion', 'fechaCompletada', 'notaCierre',
+                         'notificacionActiva', 'minutosAntes', 'rachaDiaria',
+                         'ultimaFechaCompletadaDiaria', 'categoria', 'diasSemana',
+                         'createdAt', 'updatedAt'
+                       ]) &&
+                       incoming().keys().hasOnly([
+                         'userId', 'titulo', 'tipo', 'relevancia', 'repeticion',
+                         'fecha', 'hora', 'notas', 'completada', 'traspasado',
+                         'fechaCreacion', 'fechaCompletada', 'notaCierre',
+                         'notificacionActiva', 'minutosAntes', 'rachaDiaria',
+                         'ultimaFechaCompletadaDiaria', 'categoria', 'diasSemana',
+                         'createdAt', 'updatedAt'
+                       ]) &&
+                       isValidTask(incoming(), userId);
+
+      allow update: if isOwner(userId) &&
+                       isValidId(taskId) &&
+                       isValidTask(incoming(), userId) &&
+                       incoming().userId == existing().userId &&
+                       incoming().createdAt == existing().createdAt &&
+                       incoming().diff(existing()).affectedKeys().hasOnly([
+                         'titulo', 'tipo', 'relevancia', 'repeticion',
+                         'fecha', 'hora', 'notas', 'completada', 'traspasado',
+                         'fechaCreacion', 'fechaCompletada', 'notaCierre',
+                         'notificacionActiva', 'minutosAntes', 'rachaDiaria',
+                         'ultimaFechaCompletadaDiaria', 'categoria', 'diasSemana',
+                         'updatedAt'
+                       ]);
+
+      allow delete: if isOwner(userId) && isValidId(taskId);
+    }
+
+    match /users/{userId}/daily_notes/{noteId} {
+      allow list: if isOwner(userId);
+      allow get: if isOwner(userId) && isValidId(noteId);
+
+      allow create: if isOwner(userId) &&
+                       isValidId(noteId) &&
+                       incoming().keys().hasAll(['userId', 'fecha', 'texto', 'createdAt', 'updatedAt']) &&
+                       incoming().keys().hasOnly(['userId', 'fecha', 'texto', 'createdAt', 'updatedAt']) &&
+                       isValidDailyNote(incoming(), userId);
+
+      allow update: if isOwner(userId) &&
+                       isValidId(noteId) &&
+                       isValidDailyNote(incoming(), userId) &&
+                       incoming().userId == existing().userId &&
+                       incoming().createdAt == existing().createdAt &&
+                       incoming().diff(existing()).affectedKeys().hasOnly(['fecha', 'texto', 'updatedAt']);
+
+      allow delete: if isOwner(userId) && isValidId(noteId);
+    }
+
+    match /users/{userId}/diary_entries/{entryId} {
+      allow list: if isOwner(userId);
+      allow get: if isOwner(userId) && isValidId(entryId);
+
+      allow create: if isOwner(userId) &&
+                       isValidId(entryId) &&
+                       incoming().keys().hasAll([
+                         'userId', 'fecha', 'hora', 'fechaHoraISO', 'tipo',
+                         'tareaId', 'tituloTarea', 'texto', 'createdAt', 'updatedAt'
+                       ]) &&
+                       incoming().keys().hasOnly([
+                         'userId', 'fecha', 'hora', 'fechaHoraISO', 'tipo',
+                         'tareaId', 'tituloTarea', 'texto', 'createdAt', 'updatedAt'
+                       ]) &&
+                       isValidDiaryEntry(incoming(), userId);
+
+      allow update: if isOwner(userId) &&
+                       isValidId(entryId) &&
+                       isValidDiaryEntry(incoming(), userId) &&
+                       incoming().userId == existing().userId &&
+                       incoming().createdAt == existing().createdAt &&
+                       incoming().diff(existing()).affectedKeys().hasOnly([
+                         'fecha', 'hora', 'fechaHoraISO', 'tipo',
+                         'tareaId', 'tituloTarea', 'texto', 'updatedAt'
+                       ]);
+
+      allow delete: if isOwner(userId) && isValidId(entryId);
+    }
+  }
+}

@@ -1,0 +1,13 @@
+<resources>
+    <string name="app_name">Tareas</string>
+    <string name="notif_channel_tasks_name">Avisos y Tareas</string>
+    <string name="notif_channel_tasks_desc">Recordatorios locales programados para tus tareas y avisos</string>
+    <string name="notif_channel_daily_name">Resumen Diario</string>
+    <string name="notif_channel_daily_desc">Notificación diaria con tus tareas y rutinas pendientes del día</string>
+    <string name="widget_description">Muestra tus tareas diarias, vencidas y pendientes para hoy</string>
+    <string name="cloud_sync_syncing">Sincronizando...</string>
+    <string name="cloud_sync_synced">Sincronizado</string>
+    <string name="cloud_sync_error">Sin conexión</string>
+    <string name="google_sign_in_button">Iniciar sesión con Google</string>
+    <string name="google_sign_out_button">Cerrar sesión</string>
+</resources>

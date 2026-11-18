@@ -1,0 +1,48 @@
+name: Generar APK Android (Tareas)
+
+on:
+  push:
+    branches:
+      - main
+      - master
+  workflow_dispatch:
+
+jobs:
+  build-apk:
+    name: Compilar APK Debug
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Descargar código del repositorio
+        uses: actions/checkout@v4
+
+      - name: Configurar JDK 21
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "21"
+
+      - name: Configurar Android SDK y aceptar licencias
+        uses: android-actions/setup-android@v3
+
+      - name: Configurar Gradle desde gradle-wrapper.properties
+        uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: wrapper
+
+      - name: Preparar keystore de depuración para Google Sign-In
+        run: |
+          if [ -f debug.keystore.base64 ]; then
+            base64 -d debug.keystore.base64 > debug.keystore
+          fi
+
+      - name: Compilar APK con Gradle
+        run: gradle :app:assembleDebug --no-daemon
+
+      - name: Subir APK instalable como artefacto
+        uses: actions/upload-artifact@v4
+        with:
+          name: Tareas-APK
+          path: app/build/outputs/apk/debug/*.apk
+          if-no-files-found: error
+          retention-days: 30

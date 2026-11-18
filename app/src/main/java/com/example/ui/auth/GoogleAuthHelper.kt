@@ -39,12 +39,21 @@ fun FirebaseAuth.authStateFlow(): Flow<FirebaseUser?> = callbackFlow {
 
 object GoogleAuthHelper {
 
+    private fun resolveWebClientId(context: Context): String {
+        val resId = context.resources.getIdentifier(
+            "default_web_client_id",
+            "string",
+            context.packageName,
+        )
+        return if (resId != 0) context.getString(resId) else ""
+    }
+
     suspend fun attemptSilentSignIn(
         context: Context,
         auth: FirebaseAuth = Firebase.auth,
     ): Boolean {
         if (auth.currentUser != null) return true
-        val webClientId = context.getString(R.string.default_web_client_id)
+        val webClientId = resolveWebClientId(context)
         if (webClientId.isBlank()) return false
 
         return try {
@@ -89,9 +98,11 @@ object GoogleAuthHelper {
         activityContext: Context,
         auth: FirebaseAuth = Firebase.auth,
     ): Result<FirebaseUser> {
-        val webClientId = activityContext.getString(R.string.default_web_client_id)
+        val webClientId = resolveWebClientId(activityContext)
         if (webClientId.isBlank()) {
-            return Result.failure(IllegalStateException("Falta configuración de Google Sign-In"))
+            return Result.failure(
+                IllegalStateException("Falta configuración de Google Sign-In (google-services.json)")
+            )
         }
 
         return try {

@@ -336,6 +336,7 @@ private fun AuthenticatedTareasApp(
     TareasYAvisosTheme(temaMode = uiState.settings.tema) {
         val appColors = LocalAppColors.current
 
+        Box(modifier = Modifier.fillMaxSize()) {
         BoxWithConstraints(modifier = Modifier.fillMaxSize()) {
             val useNavigationRail = maxWidth >= 600.dp
 
@@ -736,6 +737,7 @@ private fun AuthenticatedTareasApp(
                     onConfirm()
                 },
             )
+        }
         }
     }
 }

@@ -1,17 +1,24 @@
 package com.example.ui.components
 
+import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.systemBarsPadding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.rememberScrollState
@@ -19,6 +26,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.outlined.AccessTime
 import androidx.compose.material.icons.outlined.CalendarToday
 import androidx.compose.material.icons.outlined.Clear
@@ -32,6 +40,7 @@ import androidx.compose.material3.DatePicker
 import androidx.compose.material3.DatePickerDialog
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FilterChip
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -56,8 +65,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.window.Dialog
-import androidx.compose.ui.window.DialogProperties
 import com.example.data.model.DiaryEntry
 import com.example.data.model.TaskCategory
 import com.example.data.model.TaskItem
@@ -112,29 +119,78 @@ fun TaskEditorDialog(
     val tomorrowISO = remember { DateUtils.addDays(todayISO, 1) }
     val nextMondayISO = remember { DateUtils.nextMondayISO(todayISO) }
 
-    Dialog(
-        onDismissRequest = onDismiss,
-        properties = DialogProperties(usePlatformDefaultWidth = false),
-    ) {
-        Surface(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(16.dp),
-            shape = RoundedCornerShape(16.dp),
-            color = MaterialTheme.colorScheme.surface,
-            tonalElevation = 6.dp,
-        ) {
+    val submitTask: () -> Unit = {
+        val cleanTitle = titulo.trim()
+        if (cleanTitle.isEmpty()) {
+            titleError = true
+        } else {
+            val finalItems = if (newStepText.isNotBlank()) {
+                checklistItems + EditableChecklistItem(false, newStepText.trim())
+            } else {
+                checklistItems
+            }
+            val composedNotes = ChecklistUtils.composeNotes(plainNotes, finalItems)
+            val diasSemanaStr = if (repeticion == TaskRecurrence.DIARIA && selectedWeekdays.isNotEmpty() && selectedWeekdays.size < 7) {
+                selectedWeekdays.sorted().joinToString(",")
+            } else {
+                ""
+            }
+
+            val result = (initialTask ?: TaskItem(
+                id = "",
+                titulo = cleanTitle,
+                fecha = fecha,
+            )).copy(
+                titulo = cleanTitle,
+                tipo = tipo,
+                relevancia = relevancia,
+                fecha = fecha,
+                hora = hora,
+                repeticion = repeticion,
+                notas = composedNotes,
+                notificacionActiva = notificacionActiva,
+                minutosAntes = minutosAntes,
+                categoria = categoria.trim(),
+                diasSemana = diasSemanaStr,
+            )
+            onSave(result)
+        }
+    }
+
+    InAppModalOverlay(onDismiss = onDismiss) {
+        Column(modifier = Modifier.fillMaxWidth()) {
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 16.dp, vertical = 10.dp),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.SpaceBetween,
+            ) {
+                Text(
+                    text = if (initialTask != null) "Editar tarea o aviso" else "Nueva tarea o aviso",
+                    style = MaterialTheme.typography.titleMedium,
+                    color = appColors.headingText,
+                    modifier = Modifier.weight(1f),
+                )
+                Button(
+                    onClick = submitTask,
+                    contentPadding = PaddingValues(horizontal = 12.dp, vertical = 6.dp),
+                    modifier = Modifier.minimumInteractiveComponentSize(),
+                ) {
+                    Icon(Icons.Filled.Check, contentDescription = null, modifier = Modifier.size(16.dp))
+                    Spacer(Modifier.width(4.dp))
+                    Text("Guardar")
+                }
+            }
+            HorizontalDivider(color = appColors.borderSubtle)
+
             Column(
                 modifier = Modifier
+                    .fillMaxWidth()
                     .verticalScroll(rememberScrollState())
                     .padding(16.dp),
                 verticalArrangement = Arrangement.spacedBy(10.dp),
             ) {
-                Text(
-                    text = if (initialTask != null) "Editar tarea o aviso" else "Nueva tarea o aviso",
-                    style = MaterialTheme.typography.titleLarge,
-                    color = appColors.headingText,
-                )
 
                 OutlinedTextField(
                     value = titulo,
@@ -492,50 +548,17 @@ fun TaskEditorDialog(
                 ) {
                     OutlinedButton(
                         onClick = onDismiss,
-                        modifier = Modifier.weight(1f),
+                        modifier = Modifier
+                            .weight(1f)
+                            .minimumInteractiveComponentSize(),
                     ) {
                         Text("Cancelar")
                     }
                     Button(
-                        onClick = {
-                            val cleanTitle = titulo.trim()
-                            if (cleanTitle.isEmpty()) {
-                                titleError = true
-                                return@Button
-                            }
-                            val finalItems = if (newStepText.isNotBlank()) {
-                                checklistItems + EditableChecklistItem(false, newStepText.trim())
-                            } else {
-                                checklistItems
-                            }
-                            val composedNotes = ChecklistUtils.composeNotes(plainNotes, finalItems)
-                            val diasSemanaStr = if (repeticion == TaskRecurrence.DIARIA && selectedWeekdays.isNotEmpty() && selectedWeekdays.size < 7) {
-                                selectedWeekdays.sorted().joinToString(",")
-                            } else {
-                                ""
-                            }
-
-                            val result = (initialTask ?: TaskItem(
-                                id = "",
-                                titulo = cleanTitle,
-                                fecha = fecha,
-                            )).copy(
-                                titulo = cleanTitle,
-                                tipo = tipo,
-                                relevancia = relevancia,
-                                fecha = fecha,
-                                hora = hora,
-                                repeticion = repeticion,
-                                notas = composedNotes,
-                                notificacionActiva = notificacionActiva,
-                                minutosAntes = minutosAntes,
-                                categoria = categoria.trim(),
-                                diasSemana = diasSemanaStr,
-                            )
-                            onSave(result)
-                        },
+                        onClick = submitTask,
                         modifier = Modifier
                             .weight(1f)
+                            .minimumInteractiveComponentSize()
                             .testTag("save_task_button"),
                     ) {
                         Text("Guardar")
@@ -693,81 +716,99 @@ fun AddDiaryObservationDialog(
     var textError by remember { mutableStateOf(false) }
     var showDatePicker by remember { mutableStateOf(false) }
 
-    Dialog(
-        onDismissRequest = onDismiss,
-        properties = DialogProperties(usePlatformDefaultWidth = false),
-    ) {
-        Surface(
-            modifier = Modifier
-                .fillMaxWidth()
-                .widthIn(max = 540.dp)
-                .imePadding()
-                .padding(16.dp),
-            shape = RoundedCornerShape(16.dp),
-            color = MaterialTheme.colorScheme.surface,
-            tonalElevation = 6.dp,
-        ) {
-            Column(
-                modifier = Modifier.padding(16.dp),
-                verticalArrangement = Arrangement.spacedBy(10.dp),
+    val submitNote: () -> Unit = {
+        val clean = texto.trim()
+        if (clean.isEmpty()) {
+            textError = true
+        } else {
+            onConfirm(fecha, clean)
+        }
+    }
+
+    InAppModalOverlay(onDismiss = onDismiss) {
+        Column(modifier = Modifier.fillMaxWidth()) {
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 16.dp, vertical = 10.dp),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.SpaceBetween,
             ) {
                 Text(
                     text = "📖 Añadir nota al Diario",
-                    style = MaterialTheme.typography.titleLarge,
+                    style = MaterialTheme.typography.titleMedium,
                     color = appColors.headingText,
+                    modifier = Modifier.weight(1f),
                 )
-
-                Column(
+                Button(
+                    onClick = submitNote,
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = appColors.blue,
+                        contentColor = Color.White,
+                    ),
+                    contentPadding = PaddingValues(horizontal = 12.dp, vertical = 6.dp),
                     modifier = Modifier
-                        .weight(1f, fill = false)
-                        .verticalScroll(rememberScrollState()),
-                    verticalArrangement = Arrangement.spacedBy(8.dp),
+                        .minimumInteractiveComponentSize()
+                        .testTag("diary_add_obs_top_save"),
                 ) {
-                    OutlinedButton(
-                        onClick = { showDatePicker = true },
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .minimumInteractiveComponentSize(),
-                    ) {
-                        Icon(Icons.Outlined.CalendarToday, contentDescription = null, modifier = Modifier.width(16.dp))
-                        Spacer(Modifier.width(6.dp))
-                        Text("Fecha: ${DateUtils.formatDateES(fecha)}")
-                    }
-
-                    if (!existingManualText.isNullOrBlank()) {
-                        Surface(
-                            shape = RoundedCornerShape(8.dp),
-                            color = appColors.blueContainer.copy(alpha = 0.4f),
-                            modifier = Modifier.fillMaxWidth(),
-                        ) {
-                            Text(
-                                text = "Ya anotado:\n$existingManualText",
-                                style = MaterialTheme.typography.bodySmall,
-                                modifier = Modifier.padding(8.dp),
-                                maxLines = 4,
-                            )
-                        }
-                    }
-
-                    OutlinedTextField(
-                        value = texto,
-                        onValueChange = {
-                            texto = it
-                            textError = false
-                        },
-                        label = { Text("Nueva nota u observación *") },
-                        placeholder = { Text("Escribe aquí tu nota (se añadirá con la hora actual)...") },
-                        isError = textError,
-                        supportingText = if (textError) {
-                            { Text("Escribe el texto de la nota antes de confirmar") }
-                        } else null,
-                        minLines = 3,
-                        maxLines = 6,
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .testTag("diary_add_obs_input"),
-                    )
+                    Icon(Icons.Filled.Check, contentDescription = null, modifier = Modifier.size(16.dp))
+                    Spacer(Modifier.width(4.dp))
+                    Text("Guardar")
                 }
+            }
+            HorizontalDivider(color = appColors.borderSubtle)
+
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .verticalScroll(rememberScrollState())
+                    .padding(16.dp),
+                verticalArrangement = Arrangement.spacedBy(10.dp),
+            ) {
+                OutlinedButton(
+                    onClick = { showDatePicker = true },
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .minimumInteractiveComponentSize(),
+                ) {
+                    Icon(Icons.Outlined.CalendarToday, contentDescription = null, modifier = Modifier.width(16.dp))
+                    Spacer(Modifier.width(6.dp))
+                    Text("Fecha: ${DateUtils.formatDateES(fecha)}")
+                }
+
+                if (!existingManualText.isNullOrBlank()) {
+                    Surface(
+                        shape = RoundedCornerShape(8.dp),
+                        color = appColors.blueContainer.copy(alpha = 0.4f),
+                        modifier = Modifier.fillMaxWidth(),
+                    ) {
+                        Text(
+                            text = "Ya anotado:\n$existingManualText",
+                            style = MaterialTheme.typography.bodySmall,
+                            modifier = Modifier.padding(8.dp),
+                            maxLines = 4,
+                        )
+                    }
+                }
+
+                OutlinedTextField(
+                    value = texto,
+                    onValueChange = {
+                        texto = it
+                        textError = false
+                    },
+                    label = { Text("Nueva nota u observación *") },
+                    placeholder = { Text("Escribe aquí tu nota (se añadirá con la hora actual)...") },
+                    isError = textError,
+                    supportingText = if (textError) {
+                        { Text("Escribe el texto de la nota antes de confirmar") }
+                    } else null,
+                    minLines = 3,
+                    maxLines = 6,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .testTag("diary_add_obs_input"),
+                )
 
                 Row(
                     modifier = Modifier.fillMaxWidth(),
@@ -782,14 +823,7 @@ fun AddDiaryObservationDialog(
                         Text("Cancelar")
                     }
                     Button(
-                        onClick = {
-                            val clean = texto.trim()
-                            if (clean.isEmpty()) {
-                                textError = true
-                            } else {
-                                onConfirm(fecha, clean)
-                            }
-                        },
+                        onClick = submitNote,
                         colors = ButtonDefaults.buttonColors(
                             containerColor = appColors.blue,
                             contentColor = Color.White,
@@ -836,62 +870,78 @@ fun EditDiaryObservationDialog(
     var textError by remember { mutableStateOf(false) }
     var showDatePicker by remember { mutableStateOf(false) }
 
-    Dialog(
-        onDismissRequest = onDismiss,
-        properties = DialogProperties(usePlatformDefaultWidth = false),
-    ) {
-        Surface(
-            modifier = Modifier
-                .fillMaxWidth()
-                .widthIn(max = 540.dp)
-                .imePadding()
-                .padding(16.dp),
-            shape = RoundedCornerShape(16.dp),
-            color = MaterialTheme.colorScheme.surface,
-            tonalElevation = 6.dp,
-        ) {
-            Column(
-                modifier = Modifier.padding(16.dp),
-                verticalArrangement = Arrangement.spacedBy(10.dp),
+    val submitEdit: () -> Unit = {
+        val clean = texto.trim()
+        if (clean.isEmpty()) {
+            textError = true
+        } else {
+            onConfirm(entry.id, fecha, clean)
+        }
+    }
+
+    InAppModalOverlay(onDismiss = onDismiss) {
+        Column(modifier = Modifier.fillMaxWidth()) {
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 16.dp, vertical = 10.dp),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.SpaceBetween,
             ) {
                 Text(
-                    text = "✏️ Editar observaciones del día",
-                    style = MaterialTheme.typography.titleLarge,
+                    text = "✏️ Editar observaciones",
+                    style = MaterialTheme.typography.titleMedium,
                     color = appColors.headingText,
+                    modifier = Modifier.weight(1f),
                 )
-
-                Column(
-                    modifier = Modifier
-                        .weight(1f, fill = false)
-                        .verticalScroll(rememberScrollState()),
-                    verticalArrangement = Arrangement.spacedBy(8.dp),
+                Button(
+                    onClick = submitEdit,
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = appColors.blue,
+                        contentColor = Color.White,
+                    ),
+                    contentPadding = PaddingValues(horizontal = 12.dp, vertical = 6.dp),
+                    modifier = Modifier.minimumInteractiveComponentSize(),
                 ) {
-                    OutlinedButton(
-                        onClick = { showDatePicker = true },
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .minimumInteractiveComponentSize(),
-                    ) {
-                        Icon(Icons.Outlined.CalendarToday, contentDescription = null, modifier = Modifier.width(16.dp))
-                        Spacer(Modifier.width(6.dp))
-                        Text("Fecha: ${DateUtils.formatDateES(fecha)}")
-                    }
-                    OutlinedTextField(
-                        value = texto,
-                        onValueChange = {
-                            texto = it
-                            textError = false
-                        },
-                        label = { Text("Texto completo *") },
-                        isError = textError,
-                        supportingText = if (textError) {
-                            { Text("El texto no puede estar vacío") }
-                        } else null,
-                        minLines = 4,
-                        maxLines = 8,
-                        modifier = Modifier.fillMaxWidth(),
-                    )
+                    Icon(Icons.Filled.Check, contentDescription = null, modifier = Modifier.size(16.dp))
+                    Spacer(Modifier.width(4.dp))
+                    Text("Guardar")
                 }
+            }
+            HorizontalDivider(color = appColors.borderSubtle)
+
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .verticalScroll(rememberScrollState())
+                    .padding(16.dp),
+                verticalArrangement = Arrangement.spacedBy(10.dp),
+            ) {
+                OutlinedButton(
+                    onClick = { showDatePicker = true },
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .minimumInteractiveComponentSize(),
+                ) {
+                    Icon(Icons.Outlined.CalendarToday, contentDescription = null, modifier = Modifier.width(16.dp))
+                    Spacer(Modifier.width(6.dp))
+                    Text("Fecha: ${DateUtils.formatDateES(fecha)}")
+                }
+                OutlinedTextField(
+                    value = texto,
+                    onValueChange = {
+                        texto = it
+                        textError = false
+                    },
+                    label = { Text("Texto completo *") },
+                    isError = textError,
+                    supportingText = if (textError) {
+                        { Text("El texto no puede estar vacío") }
+                    } else null,
+                    minLines = 4,
+                    maxLines = 8,
+                    modifier = Modifier.fillMaxWidth(),
+                )
 
                 Row(
                     modifier = Modifier.fillMaxWidth(),
@@ -906,14 +956,7 @@ fun EditDiaryObservationDialog(
                         Text("Cancelar")
                     }
                     Button(
-                        onClick = {
-                            val clean = texto.trim()
-                            if (clean.isEmpty()) {
-                                textError = true
-                            } else {
-                                onConfirm(entry.id, fecha, clean)
-                            }
-                        },
+                        onClick = submitEdit,
                         colors = ButtonDefaults.buttonColors(
                             containerColor = appColors.blue,
                             contentColor = Color.White,
@@ -943,6 +986,47 @@ fun EditDiaryObservationDialog(
                 TextButton(onClick = { showDatePicker = false }) { Text("Cancelar") }
             },
         ) { DatePicker(state = pickerState) }
+    }
+}
+
+@Composable
+private fun InAppModalOverlay(
+    onDismiss: () -> Unit,
+    content: @Composable () -> Unit,
+) {
+    BackHandler(onBack = onDismiss)
+    val scrimInteraction = remember { MutableInteractionSource() }
+    val cardInteraction = remember { MutableInteractionSource() }
+    Box(
+        modifier = Modifier
+            .fillMaxSize()
+            .background(Color.Black.copy(alpha = 0.55f))
+            .clickable(
+                interactionSource = scrimInteraction,
+                indication = null,
+                onClick = onDismiss,
+            )
+            .systemBarsPadding()
+            .imePadding()
+            .padding(16.dp),
+        contentAlignment = Alignment.Center,
+    ) {
+        Surface(
+            modifier = Modifier
+                .fillMaxWidth()
+                .widthIn(max = 540.dp)
+                .clickable(
+                    interactionSource = cardInteraction,
+                    indication = null,
+                    onClick = {},
+                ),
+            shape = RoundedCornerShape(16.dp),
+            color = MaterialTheme.colorScheme.surface,
+            tonalElevation = 6.dp,
+            shadowElevation = 8.dp,
+        ) {
+            content()
+        }
     }
 }
 

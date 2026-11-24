@@ -549,6 +549,7 @@ private fun AuthenticatedTareasApp(
                                 uiState = uiState,
                                 onDateFilterChange = viewModel::updateDiaryDateFilter,
                                 onSearchChange = viewModel::updateDiarySearch,
+                                onToggleFiltersExpanded = viewModel::toggleDiaryFiltersExpanded,
                                 onClearFilters = viewModel::clearDiaryFilters,
                                 onAddObservation = { dateISO -> addObsDate = dateISO },
                                 onEditObservation = { editingDiaryEntry = it },
@@ -565,6 +566,8 @@ private fun AuthenticatedTareasApp(
                                 uiState = uiState,
                                 onSearchChange = viewModel::updateHistorySearch,
                                 onRelevanceChange = viewModel::updateHistoryRelevance,
+                                onToggleFiltersExpanded = viewModel::toggleHistoryFiltersExpanded,
+                                onClearFilters = viewModel::clearHistoryFilters,
                                 onExportExcelClick = { showExcelDialog = true },
                                 onClearHistoryClick = {
                                     val count = uiState.completedTasks.size

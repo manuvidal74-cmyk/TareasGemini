@@ -43,8 +43,10 @@ data class FilterState(
     val filtersExpanded: Boolean = false,
     val diaryDateFilter: String = "",
     val diarySearch: String = "",
+    val diaryFiltersExpanded: Boolean = false,
     val historySearch: String = "",
     val historyRelevance: TaskRelevance? = null,
+    val historyFiltersExpanded: Boolean = false,
 )
 
 data class CalendarUiState(
@@ -374,6 +376,10 @@ class TareasViewModel(
         _filters.update { it.copy(diarySearch = query) }
     }
 
+    fun toggleDiaryFiltersExpanded() {
+        _filters.update { it.copy(diaryFiltersExpanded = !it.diaryFiltersExpanded) }
+    }
+
     fun clearDiaryFilters() {
         _filters.update { it.copy(diaryDateFilter = "", diarySearch = "") }
     }
@@ -384,6 +390,14 @@ class TareasViewModel(
 
     fun updateHistoryRelevance(rel: TaskRelevance?) {
         _filters.update { it.copy(historyRelevance = rel) }
+    }
+
+    fun toggleHistoryFiltersExpanded() {
+        _filters.update { it.copy(historyFiltersExpanded = !it.historyFiltersExpanded) }
+    }
+
+    fun clearHistoryFilters() {
+        _filters.update { it.copy(historySearch = "", historyRelevance = null) }
     }
 
     // Calendar navigation

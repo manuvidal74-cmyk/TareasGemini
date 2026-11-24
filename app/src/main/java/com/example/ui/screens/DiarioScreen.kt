@@ -1,8 +1,15 @@
 package com.example.ui.screens
 
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.expandVertically
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.shrinkVertically
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.ExperimentalLayoutApi
+import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -17,7 +24,6 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.CalendarToday
 import androidx.compose.material.icons.outlined.Delete
 import androidx.compose.material.icons.outlined.Edit
-import androidx.compose.material.icons.outlined.Search
 import androidx.compose.material3.Button
 import androidx.compose.material3.DatePicker
 import androidx.compose.material3.DatePickerDialog
@@ -27,24 +33,31 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
-import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.minimumInteractiveComponentSize
 import androidx.compose.material3.rememberDatePickerState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import com.example.R
 import com.example.data.model.DiaryEntry
 import com.example.ui.TareasUiState
+import com.example.ui.components.CompactExpandableSearchField
+import com.example.ui.components.SearchFilterButton
 import com.example.ui.components.StatusPill
 import com.example.ui.components.isoToUtcMillis
 import com.example.ui.components.utcMillisToIso
@@ -58,12 +71,13 @@ private data class DiaryDayGroup(
     val completedEntries: List<DiaryEntry>,
 )
 
-@OptIn(ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalLayoutApi::class)
 @Composable
 fun DiarioScreen(
     uiState: TareasUiState,
     onDateFilterChange: (String) -> Unit,
     onSearchChange: (String) -> Unit,
+    onToggleFiltersExpanded: () -> Unit,
     onClearFilters: () -> Unit,
     onAddObservation: (String) -> Unit,
     onEditObservation: (DiaryEntry) -> Unit,
@@ -71,6 +85,9 @@ fun DiarioScreen(
     modifier: Modifier = Modifier,
 ) {
     val appColors = LocalAppColors.current
+    val keyboardController = LocalSoftwareKeyboardController.current
+    val searchFocusRequester = remember { FocusRequester() }
+    var focusSearchOnExpand by remember { mutableStateOf(false) }
     var showDatePicker by remember { mutableStateOf(false) }
 
     val dayGroups = remember(
@@ -125,6 +142,11 @@ fun DiarioScreen(
         verticalArrangement = Arrangement.spacedBy(10.dp),
     ) {
         item(key = "diario_header_card") {
+            val hasDateFilter = uiState.filters.diaryDateFilter.isNotBlank()
+            val hasSearch = uiState.filters.diarySearch.isNotBlank()
+            val activeCount = (if (hasDateFilter) 1 else 0) + (if (hasSearch) 1 else 0)
+            val hasAnyActive = activeCount > 0
+
             Surface(
                 shape = RoundedCornerShape(14.dp),
                 color = MaterialTheme.colorScheme.surface,
@@ -160,53 +182,126 @@ fun DiarioScreen(
 
                     Row(
                         modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.spacedBy(8.dp),
                         verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.spacedBy(8.dp),
                     ) {
-                        OutlinedButton(
-                            onClick = { showDatePicker = true },
-                            modifier = Modifier.minimumInteractiveComponentSize(),
+                        FlowRow(
+                            modifier = Modifier.weight(1f),
+                            horizontalArrangement = Arrangement.spacedBy(6.dp),
+                            verticalArrangement = Arrangement.spacedBy(6.dp),
                         ) {
-                            Icon(Icons.Outlined.CalendarToday, contentDescription = null, modifier = Modifier.width(16.dp))
-                            Spacer(Modifier.width(4.dp))
-                            Text(
-                                if (uiState.filters.diaryDateFilter.isBlank()) "Fecha"
-                                else DateUtils.formatDateES(uiState.filters.diaryDateFilter)
+                            StatusPill(
+                                text = "✅ Esta semana: ${uiState.completedThisWeekCount}",
+                                containerColor = appColors.greenContainer,
+                                contentColor = appColors.green,
+                            )
+                            StatusPill(
+                                text = "🔥 Mejor racha: ${uiState.bestDailyStreak}d",
+                                containerColor = appColors.amberContainer,
+                                contentColor = appColors.amber,
                             )
                         }
 
-                        OutlinedTextField(
-                            value = uiState.filters.diarySearch,
-                            onValueChange = onSearchChange,
-                            placeholder = { Text("Notas, tareas, cal...") },
-                            leadingIcon = { Icon(Icons.Outlined.Search, contentDescription = null) },
-                            singleLine = true,
-                            modifier = Modifier.weight(1f),
+                        SearchFilterButton(
+                            expanded = uiState.filters.diaryFiltersExpanded,
+                            activeCount = activeCount,
+                            hasActiveSearch = hasSearch,
+                            onClick = {
+                                if (!uiState.filters.diaryFiltersExpanded) {
+                                    focusSearchOnExpand = true
+                                } else {
+                                    keyboardController?.hide()
+                                }
+                                onToggleFiltersExpanded()
+                            },
+                            modifier = Modifier.testTag("diario_toggle_search_button"),
                         )
+                    }
 
-                        OutlinedButton(
-                            onClick = onClearFilters,
-                            modifier = Modifier.minimumInteractiveComponentSize(),
+                    if (!uiState.filters.diaryFiltersExpanded && hasAnyActive) {
+                        val activeSummary = buildList {
+                            if (hasDateFilter) add("📅 ${DateUtils.formatDateES(uiState.filters.diaryDateFilter)}")
+                            if (hasSearch) add("🔍 \"${uiState.filters.diarySearch.trim()}\"")
+                        }.joinToString(" · ")
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.SpaceBetween,
                         ) {
-                            Text("Todo")
+                            Text(
+                                text = activeSummary,
+                                style = MaterialTheme.typography.labelMedium,
+                                color = MaterialTheme.colorScheme.primary,
+                                maxLines = 1,
+                                overflow = TextOverflow.Ellipsis,
+                                modifier = Modifier.weight(1f),
+                            )
+                            TextButton(
+                                onClick = onClearFilters,
+                                contentPadding = PaddingValues(horizontal = 8.dp),
+                                modifier = Modifier.minimumInteractiveComponentSize(),
+                            ) {
+                                Text("Todo")
+                            }
                         }
                     }
 
-                    HorizontalDivider(color = appColors.borderSubtle)
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.spacedBy(8.dp),
+                    AnimatedVisibility(
+                        visible = uiState.filters.diaryFiltersExpanded,
+                        enter = expandVertically() + fadeIn(),
+                        exit = shrinkVertically() + fadeOut(),
                     ) {
-                        StatusPill(
-                            text = "✅ Esta semana: ${uiState.completedThisWeekCount}",
-                            containerColor = appColors.greenContainer,
-                            contentColor = appColors.green,
-                        )
-                        StatusPill(
-                            text = "🔥 Mejor racha: ${uiState.bestDailyStreak}d",
-                            containerColor = appColors.amberContainer,
-                            contentColor = appColors.amber,
-                        )
+                        LaunchedEffect(focusSearchOnExpand) {
+                            if (focusSearchOnExpand) {
+                                focusSearchOnExpand = false
+                                try {
+                                    searchFocusRequester.requestFocus()
+                                } catch (_: Exception) {
+                                }
+                            }
+                        }
+
+                        Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                            HorizontalDivider(color = appColors.borderSubtle)
+
+                            CompactExpandableSearchField(
+                                query = uiState.filters.diarySearch,
+                                onQueryChange = onSearchChange,
+                                placeholder = "Buscar en notas, tareas o calendario...",
+                                focusRequester = searchFocusRequester,
+                                modifier = Modifier.testTag("search_diario_input"),
+                            )
+
+                            Row(
+                                modifier = Modifier.fillMaxWidth(),
+                                horizontalArrangement = Arrangement.spacedBy(8.dp),
+                                verticalAlignment = Alignment.CenterVertically,
+                            ) {
+                                OutlinedButton(
+                                    onClick = { showDatePicker = true },
+                                    modifier = Modifier
+                                        .weight(1f)
+                                        .minimumInteractiveComponentSize(),
+                                ) {
+                                    Icon(Icons.Outlined.CalendarToday, contentDescription = null, modifier = Modifier.width(16.dp))
+                                    Spacer(Modifier.width(6.dp))
+                                    Text(
+                                        text = if (uiState.filters.diaryDateFilter.isBlank()) "Filtrar por fecha"
+                                        else DateUtils.formatDateES(uiState.filters.diaryDateFilter),
+                                        maxLines = 1,
+                                        overflow = TextOverflow.Ellipsis,
+                                    )
+                                }
+
+                                OutlinedButton(
+                                    onClick = onClearFilters,
+                                    enabled = hasAnyActive,
+                                    modifier = Modifier.minimumInteractiveComponentSize(),
+                                ) {
+                                    Text(stringResource(R.string.action_clear_all))
+                                }
+                            }
+                        }
                     }
                 }
             }

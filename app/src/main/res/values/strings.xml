@@ -10,4 +10,8 @@
     <string name="cloud_sync_error">Sin conexión</string>
     <string name="google_sign_in_button">Iniciar sesión con Google</string>
     <string name="google_sign_out_button">Cerrar sesión</string>
+    <string name="cd_toggle_search_filters">Buscar y filtrar</string>
+    <string name="cd_clear_search">Limpiar búsqueda</string>
+    <string name="action_filters">Filtros</string>
+    <string name="action_clear_all">Limpiar</string>
 </resources>

@@ -1,6 +1,10 @@
 package com.example.ui.screens
 
 import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.expandVertically
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.shrinkVertically
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -9,54 +13,56 @@ import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.CheckCircle
-import androidx.compose.material.icons.outlined.Close
 import androidx.compose.material.icons.outlined.ExpandLess
 import androidx.compose.material.icons.outlined.ExpandMore
 import androidx.compose.material.icons.outlined.NotificationsOff
-import androidx.compose.material.icons.outlined.Search
-import androidx.compose.material.icons.outlined.Tune
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.FilterChip
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
-import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.material3.minimumInteractiveComponentSize
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateMapOf
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import com.example.R
 import com.example.data.model.SortOrder
 import com.example.data.model.TaskCategory
 import com.example.data.model.TaskItem
 import com.example.data.model.TaskRelevance
 import com.example.data.model.TaskType
 import com.example.ui.TareasUiState
+import com.example.ui.components.CompactExpandableSearchField
 import com.example.ui.components.DailyTasksSection
+import com.example.ui.components.SearchFilterButton
 import com.example.ui.components.StatusPill
 import com.example.ui.components.TaskCard
 import com.example.ui.theme.LocalAppColors
@@ -100,6 +106,9 @@ fun PendientesScreen(
     modifier: Modifier = Modifier,
 ) {
     val appColors = LocalAppColors.current
+    val keyboardController = LocalSoftwareKeyboardController.current
+    val searchFocusRequester = remember { FocusRequester() }
+    var focusSearchOnExpand by remember { mutableStateOf(false) }
     val filteredList = uiState.filteredPendingTasks
     val filteredDaily = uiState.filteredDailyTasks
     val urgentAlerts = uiState.urgentAlerts
@@ -338,6 +347,8 @@ fun PendientesScreen(
 
         // Search & Expandable Filters
         item(key = "search_filters_card") {
+            val hasActiveSearch = uiState.filters.searchPendientes.isNotBlank()
+            val hasAnyActive = hasActiveSearch || uiState.activeFilterCount > 0
             Surface(
                 shape = RoundedCornerShape(12.dp),
                 color = MaterialTheme.colorScheme.surface,
@@ -345,7 +356,7 @@ fun PendientesScreen(
                 modifier = Modifier.fillMaxWidth(),
             ) {
                 Column(
-                    modifier = Modifier.padding(10.dp),
+                    modifier = Modifier.padding(horizontal = 12.dp, vertical = 8.dp),
                     verticalArrangement = Arrangement.spacedBy(8.dp),
                 ) {
                     Row(
@@ -353,41 +364,81 @@ fun PendientesScreen(
                         verticalAlignment = Alignment.CenterVertically,
                         horizontalArrangement = Arrangement.spacedBy(8.dp),
                     ) {
-                        OutlinedTextField(
-                            value = uiState.filters.searchPendientes,
-                            onValueChange = onSearchChange,
-                            placeholder = { Text("Buscar en título, notas o categoría...") },
-                            leadingIcon = { Icon(Icons.Outlined.Search, contentDescription = null) },
-                            trailingIcon = {
-                                if (uiState.filters.searchPendientes.isNotEmpty()) {
-                                    IconButton(onClick = { onSearchChange("") }) {
-                                        Icon(Icons.Outlined.Close, contentDescription = "Limpiar búsqueda")
-                                    }
-                                }
-                            },
-                            singleLine = true,
-                            modifier = Modifier
-                                .weight(1f)
-                                .testTag("search_pendientes_input"),
-                        )
-
-                        OutlinedButton(
-                            onClick = onToggleFiltersExpanded,
-                            modifier = Modifier
-                                .minimumInteractiveComponentSize()
-                                .testTag("toggle_filters_button"),
-                            contentPadding = PaddingValues(horizontal = 10.dp, vertical = 8.dp),
-                        ) {
-                            Icon(Icons.Outlined.Tune, contentDescription = "Filtros", modifier = Modifier.size(18.dp))
-                            Spacer(Modifier.width(4.dp))
-                            val count = uiState.activeFilterCount
-                            Text(if (count > 0) "($count)" else "Filtros")
+                        Column(modifier = Modifier.weight(1f)) {
+                            Text(
+                                text = "${filteredList.size} pendientes · ${filteredDaily.size} diarias",
+                                style = MaterialTheme.typography.labelLarge,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                maxLines = 1,
+                                overflow = TextOverflow.Ellipsis,
+                            )
+                            if (!uiState.filters.filtersExpanded && hasAnyActive) {
+                                val summaryParts = buildList {
+                                    if (hasActiveSearch) add("\"${uiState.filters.searchPendientes.trim()}\"")
+                                    if (uiState.activeFilterCount > 0) add("${uiState.activeFilterCount} filtro(s)")
+                                }.joinToString(" · ")
+                                Text(
+                                    text = "Activo: $summaryParts",
+                                    style = MaterialTheme.typography.labelSmall,
+                                    color = MaterialTheme.colorScheme.primary,
+                                    maxLines = 1,
+                                    overflow = TextOverflow.Ellipsis,
+                                )
+                            }
                         }
+
+                        if (!uiState.filters.filtersExpanded && hasAnyActive) {
+                            TextButton(
+                                onClick = onResetFilters,
+                                contentPadding = PaddingValues(horizontal = 8.dp),
+                                modifier = Modifier.minimumInteractiveComponentSize(),
+                            ) {
+                                Text(stringResource(R.string.action_clear_all))
+                            }
+                        }
+
+                        SearchFilterButton(
+                            expanded = uiState.filters.filtersExpanded,
+                            activeCount = uiState.activeFilterCount,
+                            hasActiveSearch = hasActiveSearch,
+                            label = stringResource(R.string.action_filters),
+                            onClick = {
+                                if (!uiState.filters.filtersExpanded) {
+                                    focusSearchOnExpand = true
+                                } else {
+                                    keyboardController?.hide()
+                                }
+                                onToggleFiltersExpanded()
+                            },
+                            modifier = Modifier.testTag("toggle_filters_button"),
+                        )
                     }
 
-                    AnimatedVisibility(visible = uiState.filters.filtersExpanded) {
+                    AnimatedVisibility(
+                        visible = uiState.filters.filtersExpanded,
+                        enter = expandVertically() + fadeIn(),
+                        exit = shrinkVertically() + fadeOut(),
+                    ) {
+                        LaunchedEffect(focusSearchOnExpand) {
+                            if (focusSearchOnExpand) {
+                                focusSearchOnExpand = false
+                                try {
+                                    searchFocusRequester.requestFocus()
+                                } catch (_: Exception) {
+                                }
+                            }
+                        }
+
                         Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
                             HorizontalDivider(color = appColors.borderSubtle)
+
+                            CompactExpandableSearchField(
+                                query = uiState.filters.searchPendientes,
+                                onQueryChange = onSearchChange,
+                                placeholder = "Buscar en título, notas o categoría...",
+                                focusRequester = searchFocusRequester,
+                                modifier = Modifier.testTag("search_pendientes_input"),
+                            )
 
                             Text("Categoría", style = MaterialTheme.typography.labelMedium)
                             FlowRow(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
@@ -480,12 +531,6 @@ fun PendientesScreen(
                             }
                         }
                     }
-
-                    Text(
-                        text = "${filteredList.size} pendientes generales · ${filteredDaily.size} rutinas diarias arriba",
-                        style = MaterialTheme.typography.labelMedium,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    )
                 }
             }
         }
